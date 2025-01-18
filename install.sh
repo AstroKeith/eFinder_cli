@@ -115,18 +115,6 @@ sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/
 #sudo cp /home/efinder/eFinder_cli/Solver/cedar-detect-server /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/bin
 sudo chmod a+rwx -R /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3
 
-echo " "
-echo "*****************************************************************************"
-echo "Setting up web page server"
-echo "*****************************************************************************"
-sudo apt-get install -y apache2
-sudo apt-get install -y php8.2
-sudo chmod a+rwx /home/efinder
-sudo chmod a+rwx /home/efinder/Solver
-sudo chmod a+rwx /home/efinder/Solver/eFinder.config
-sudo cp eFinder_cli/Solver/www/*.* /var/www/html
-sudo mv /var/www/html/index.html /var/www/html/apacheindex.html
-sudo chmod -R 755 /var/www/html
 
 echo " "
 echo "*****************************************************************************"
@@ -135,7 +123,8 @@ echo "**************************************************************************
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
 sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
 echo 'dtoverlay=dwc2' | sudo tee -a /boot/firmware/config.txt > /dev/null
-
+sudo cp /home/efinder/eFinder_cli/Solver/config.txt /boot/firmware
+sudo cp /home/efinder/eFinder_cli/Solver/cmdline.txt /boot/firmware
 sudo raspi-config nonint do_boot_behaviour B2
 #sudo raspi-config nonint do_hostname efinder
 sudo raspi-config nonint do_ssh 0
