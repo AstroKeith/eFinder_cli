@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "eFinder Lite install with Cedar-solve"
+echo "eFinder cli install with Cedar-solve"
 echo " "
 echo "*****************************************************************************"
 echo "Updating Pi OS & packages"
@@ -46,14 +46,14 @@ sudo -u efinder git clone https://github.com/smroid/cedar-solve.git
 cd $HOME
 echo " "
 echo "*****************************************************************************"
-echo "Downloading eFinder_Lite from AstroKeith GitHub"
+echo "Downloading eFinder_cli from AstroKeith GitHub"
 echo "*****************************************************************************"
-sudo -u efinder git clone https://github.com/AstroKeith/eFinder_Lite.git
+sudo -u efinder git clone https://github.com/AstroKeith/eFinder_cli.git
 echo " "
 echo "*****************************************************************************"
 echo "Installing ASI camera support"
 echo "*****************************************************************************"
-cd eFinder_Lite
+cd eFinder_cli
 tar xf ASI_linux_mac_SDK_V1.31.tar.bz2
 cd ASI_linux_mac_SDK_V1.31/lib
 sudo mkdir /lib/zwoasi
@@ -73,19 +73,15 @@ mkdir /home/efinder/Solver/images
 mkdir /home/efinder/Solver/data
 
 
-cp /home/efinder/eFinder_Lite/Solver/*.* /home/efinder/Solver
-cp /home/efinder/eFinder_Lite/Solver/de421.bsp /home/efinder
-cp /home/efinder/eFinder_Lite/Solver/starnames.csv /home/efinder/Solver/data
+cp /home/efinder/eFinder_cli/Solver/*.* /home/efinder/Solver
+cp /home/efinder/eFinder_cli/Solver/de421.bsp /home/efinder
+cp /home/efinder/eFinder_cli/Solver/starnames.csv /home/efinder/Solver/data
 
 echo " "
 echo "*****************************************************************************"
-echo "Installing OLED & GPIO drivers"
+echo "Installing GPIO drivers"
 echo "*****************************************************************************"
 cd $HOME
-wget https://github.com/joan2937/lg/archive/master.zip
-unzip master.zip
-cd lg-master
-sudo make install
 sudo apt install -y python3-rpi-lgpio
 cd /home/efinder/Solver
 unzip drive.zip
@@ -114,9 +110,9 @@ echo " "
 echo "*****************************************************************************"
 echo "installing Tetra databases"
 echo "*****************************************************************************"
-sudo cp -r /home/efinder/eFinder_Lite/tetra3 venv-efinder/lib/python3.11/site-packages
+sudo cp -r /home/efinder/eFinder_cli/tetra3 venv-efinder/lib/python3.11/site-packages
 sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
-#sudo cp /home/efinder/eFinder_Lite/Solver/cedar-detect-server /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/bin
+#sudo cp /home/efinder/eFinder_cli/Solver/cedar-detect-server /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/bin
 sudo chmod a+rwx -R /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3
 
 echo " "
@@ -128,16 +124,17 @@ sudo apt-get install -y php8.2
 sudo chmod a+rwx /home/efinder
 sudo chmod a+rwx /home/efinder/Solver
 sudo chmod a+rwx /home/efinder/Solver/eFinder.config
-sudo cp eFinder_Lite/Solver/www/*.* /var/www/html
+sudo cp eFinder_cli/Solver/www/*.* /var/www/html
 sudo mv /var/www/html/index.html /var/www/html/apacheindex.html
 sudo chmod -R 755 /var/www/html
 
 echo " "
 echo "*****************************************************************************"
-echo "Final eFinder_Lite configuration setting"
+echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
-sudo chmod a+rwx eFinder_Lite/Solver/my_cron
-sudo cp /home/efinder/eFinder_Lite/Solver/my_cron /etc/cron.d
+sudo chmod a+rwx eFinder_cli/Solver/my_cron
+sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
+echo 'dtoverlay=dwc2' | sudo tee -a /boot/firmware/config.txt > /dev/null
 
 sudo raspi-config nonint do_boot_behaviour B2
 #sudo raspi-config nonint do_hostname efinder
