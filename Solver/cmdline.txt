@@ -1,1 +1,0 @@
-console=tty1 root=PARTUUID=893b50b3-02 rootfstype=ext4 fsck.repair=yes rootwait modules-load=dwc2,g_serial cfg80211.ieee80211_regdom=GB

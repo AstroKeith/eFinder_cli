@@ -1,2 +1,0 @@
-PATH=/home/efinder/venv-efinder/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-@reboot efinder /home/efinder/venv-efinder/bin/python /home/efinder/Solver/eFinder_cli.py &
