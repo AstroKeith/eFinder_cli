@@ -32,7 +32,6 @@ sudo apt install -y python3-skyfield
 
 python -m venv /home/efinder/venv-efinder --system-site-packages
 
-venv-efinder/bin/python venv-efinder/bin/pip install adafruit-circuitpython-adxl34x
 venv-efinder/bin/python venv-efinder/bin/pip install grpcio
 venv-efinder/bin/python venv-efinder/bin/pip install grpcio-tools
 venv-efinder/bin/python venv-efinder/bin/pip install gdown
