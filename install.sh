@@ -123,8 +123,8 @@ echo "**************************************************************************
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
 sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
 #echo 'dtoverlay=dwc2' | sudo tee -a /boot/firmware/config.txt > /dev/null
-sudo cp /home/efinder/eFinder_cli/Solver/config.txt /boot/firmware
-sudo cp /home/efinder/eFinder_cli/Solver/cmdline.txt /boot/firmware
+#sudo cp /home/efinder/eFinder_cli/Solver/config.txt /boot/firmware
+#sudo cp /home/efinder/eFinder_cli/Solver/cmdline.txt /boot/firmware
 sudo raspi-config nonint do_boot_behaviour B2
 #sudo raspi-config nonint do_hostname efinder
 sudo raspi-config nonint do_ssh 0
