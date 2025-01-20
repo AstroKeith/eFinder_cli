@@ -31,24 +31,17 @@ class Nexus:
         #self.ts = load.timescale()
 
         try:
-            #self.ser = serial.Serial("/dev/ttyS0", baudrate=9600)
-            self.ser = serial.Serial(
-                '/dev/ttyUSB0',
-                baudrate=115200,
-                stopbits=serial.STOPBITS_ONE,
-                bytesize=serial.EIGHTBITS,
-                writeTimeout=0,
-                timeout=0,
-                rtscts=False,
-                dsrdtr=False,
-                        )
+            #self.ser = serial.Serial("/dev/ttyGS0", baudrate=9600)
+            self.ser = serial.Serial('/dev/ttyGS0',baudrate=9600)
             time.sleep(0.1)
+            '''
             self.ser.write(b":G#")
             time.sleep(0.1)
             p = str(self.ser.read(self.ser.in_waiting), "ascii")
             if p[0] != "1":
                 print ('Nexus not responding')
-                return
+                #return
+            '''
             self.nexus_link = "USB"
         except:
             print ("cant open USB to Nexus")
@@ -75,10 +68,15 @@ class Nexus:
         """
 
         self.ser.write(bytes(txt.encode("ascii")))
-        time.sleep(0.1)
+        time.sleep(0.2)
         res = str(self.ser.read(self.ser.in_waiting).decode("ascii")).strip("#")
         #print("sent", txt, "got", res, "from Nexus")
         return res
+
+    def scan(self):
+        if self.ser.in_waiting > 0:
+            a = str(self.ser.read(self.ser.in_waiting).decode("ascii"))
+            return a
 
     def read(self) -> None:
         """Establishes that Nexus DSC is talking to us and get observer location and time data"""
@@ -107,12 +105,7 @@ class Nexus:
         #print("Calculated UTC", new_dt)
         #print("setting pi clock to:", end=" ")
         os.system('sudo date -u --set "%s"' % new_dt + ".000Z")
-        p = self.get(":GW#")
-        if p[1] != "T":
-            print ("Nexus reports", "not aligned yet", "")
-        else:
-            print ("eFinder ready", "Nexus report " + p[0:3], "")
-            self.aligned = True
+
         time.sleep(0.2)
 
         
