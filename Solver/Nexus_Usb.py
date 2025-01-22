@@ -31,7 +31,7 @@ class Nexus:
         #self.ts = load.timescale()
 
         try:
-            #self.ser = serial.Serial("/dev/ttyGS0", baudrate=9600)
+            #self.ser = serial.Serial("/dev/serial0", baudrate=9600)
             self.ser = serial.Serial('/dev/ttyGS0',baudrate=9600)
             time.sleep(0.1)
             '''
@@ -56,6 +56,9 @@ class Nexus:
         self.ser.write(bytes(txt.encode("ascii")))
 
         print("sent", txt, "to Nexus")
+
+    def writeBytes(self,byt):
+        self.ser.write(byt)
 
     def get(self, txt: str) -> str:
         """Receive a message from the Nexus DSC
