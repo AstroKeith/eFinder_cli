@@ -90,7 +90,9 @@ class Nexus:
         self.location = self.coordinates.get_earth() + wgs84.latlon(self.lat, self.long)
         self.site = wgs84.latlon(self.lat,self.long)
         local_time = self.get(":GL#")
+        time.sleep(0.1)
         local_date = self.get(":GC#")
+        time.sleep(0.1)
         local_offset = float(self.get(":GG#"))
         print(
             "Nexus reports: local datetime as",

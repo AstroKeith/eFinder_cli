@@ -1,31 +1,26 @@
-import serial
+#!/usr/bin/python3
 
-from threading import Thread
+# Code to emulate a Nexus DSC when testing an eFinder cli
+# Start this code before booting the eFinder
+# if /dev/ttyACM0 not found, try replugging the USB cable.
+
+import serial
 from datetime import datetime
 import time
-flag = False
-wait = True
-byteFlag = False
+import numpy as np
+from io import BytesIO
+from matplotlib import pyplot as plt
+
 ser = serial.Serial('/dev/ttyACM0',baudrate=9600)
 
 def readUsb():
-    global msg, flag, byteFlag
-    print('readUsb starting')
-    time.sleep(0.1)
     while True:
         if ser.in_waiting > 0:
-            time.sleep(0.1)
+            time.sleep(0.1) # make sure whole packet is got
             reply = ser.read(ser.in_waiting)
-            if byteFlag == True:
-                print('bytes',reply)
-                flag = True
-                byteFlag = False
-                continue
-            else:
-                msg = reply.decode("utf-8")
-
+            msg = reply.decode("utf-8")
+            print ('reply',msg)
             if msg[0] == ':':
-                print(msg)
                 if msg == ':Gt#':
                     ser.write(b'+51*20#')
                 elif msg == ':Gg#':
@@ -40,28 +35,54 @@ def readUsb():
                     ser.write(bytes(date.encode("ascii")))
                 elif msg == ':GG#':
                     ser.write(b'+00.0#')
-                    flag = True # finished initial geoloc download
-            else:
-                print ('reply',msg)
-                flag = True
-        time.sleep(0.05)
-        
-serveLoop = Thread(target=readUsb)
-serveLoop.start()
+                    break # finished initial geoloc download
 
+        time.sleep(0.05)
+
+def bytes_to_array(b: bytes) -> np.ndarray:
+    np_bytes = BytesIO(b)
+    return np.load(np_bytes, allow_pickle=True)
+
+print ('Waiting for eFinder to Initialise')
+
+readUsb()
+time.sleep(8) # allow eFinder to load dBases etc
+print ('eFinder ready')
 
 while True:
-    if flag == True:
+
         txt = input(' enter string to send ')
         txt = ':'+txt+'#'
-        ser.write(bytes(txt.encode("ascii")))
-        if txt == ':GI#' or txt == ':GP#':
-            byteFlag=True
-        flag = False
-        time.sleep(0.5)
+        
+        if txt == ':GI#' or txt == ':GP#': # get image bytes
+            ser.write(bytes(txt.encode("ascii")))
+            while ser.in_waiting == 0:
+                time.sleep(0.1)
+            reply = ser.read(ser.in_waiting)
+            imArray = bytes_to_array(reply)
+            plt.imshow(imArray, interpolation='nearest')
+            plt.show() # close plot window on screen when done
+        
+        elif txt == ':LI#' or txt == ':LP#': # looping get image bytes
+            try:
+                while True:
+                    ser.write(bytes(txt.encode("ascii")))
+                    while ser.in_waiting == 0:
+                        time.sleep(0.1)
+                    reply = ser.read(ser.in_waiting)
+                    imArray = bytes_to_array(reply)
+                    plt.imshow(imArray, interpolation='nearest')
+                    plt.show(block=False)
+                    plt.pause(2)
+                    
+            except KeyboardInterrupt:
+                plt.close("all")
+                continue
 
+        else: # all other commands
+            ser.write(bytes(txt.encode("ascii")))
+            while ser.in_waiting == 0:
+                time.sleep(0.1)
+            reply = ser.read(ser.in_waiting).decode("utf-8")
+            print ('Reply ',reply)
 
-
-
-#time.sleep(0.1)
-#print('got reply: ',ser.read(ser.in_waiting).decode("ascii"))
