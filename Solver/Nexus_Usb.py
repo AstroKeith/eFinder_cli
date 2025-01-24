@@ -31,7 +31,7 @@ class Nexus:
 
         try:
             #self.ser = serial.Serial("/dev/serial0", baudrate=9600)
-            self.ser = serial.Serial('/dev/ttyGS0',baudrate=9600)
+            self.ser = serial.Serial('/dev/ttyGS0',baudrate=115200)
             time.sleep(0.1)
             #self.nexus_link = "USB"
         except:

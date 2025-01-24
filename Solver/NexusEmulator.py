@@ -11,7 +11,7 @@ import numpy as np
 from io import BytesIO
 from matplotlib import pyplot as plt
 
-ser = serial.Serial('/dev/ttyACM0',baudrate=9600)
+ser = serial.Serial('/dev/ttyACM0',baudrate=115200)
 
 def readUsb():
     while True:
@@ -19,22 +19,28 @@ def readUsb():
             time.sleep(0.1) # make sure whole packet is got
             reply = ser.read(ser.in_waiting)
             msg = reply.decode("utf-8")
-            print ('reply',msg)
+            print ('replying to',msg, end=" > ")
             if msg[0] == ':':
                 if msg == ':Gt#':
                     ser.write(b'+51*20#')
+                    print('+51*20#')
                 elif msg == ':Gg#':
                     ser.write(b'+000*50#')
+                    print('+000*50#')
                 elif msg == ':GL#':
                     now = datetime.now()
                     timet = now.strftime("%H:%M:%S#") 
                     ser.write(bytes(timet.encode("ascii")))
+                    print(timet)
                 elif msg == ':GC#':
                     now = datetime.now()
                     date = now.strftime("%m/%d/%y#") 
                     ser.write(bytes(date.encode("ascii")))
+                    print(date)
                 elif msg == ':GG#':
                     ser.write(b'+00.0#')
+                    print('+00.0#')
+                    print ('Loading modules')
                     break # finished initial geoloc download
 
         time.sleep(0.05)
@@ -60,6 +66,8 @@ while True:
                 time.sleep(0.1)
             reply = ser.read(ser.in_waiting)
             imArray = bytes_to_array(reply)
+            print (str(reply))
+            print (imArray)
             plt.imshow(imArray, interpolation='nearest')
             plt.show() # close plot window on screen when done
         
