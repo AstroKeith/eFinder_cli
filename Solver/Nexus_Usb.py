@@ -1,14 +1,14 @@
 import serial
 import time
-import socket
+#import socket
 from skyfield.api import wgs84
 from datetime import datetime, timedelta
 import os
-import math
-import re
+#import math
+#import re
 import Coordinates_Lite
-import subprocess
-import sys
+#import subprocess
+#import sys
 
 class Nexus:
     """The Nexus utility class"""
@@ -21,28 +21,19 @@ class Nexus:
         coordinates (Coordinates): The coordinates utility class to be used in the eFinder
         """
 
-        self.aligned = False
-        self.nexus_link = "none"
+        #self.aligned = False
+        #self.nexus_link = "none"
         self.coordinates = coordinates
         self.long = 0
         self.lat = 0
         self.earth = coordinates.get_earth()
         self.ts = coordinates.get_ts()
-        #self.ts = load.timescale()
 
         try:
             #self.ser = serial.Serial("/dev/serial0", baudrate=9600)
             self.ser = serial.Serial('/dev/ttyGS0',baudrate=9600)
             time.sleep(0.1)
-            '''
-            self.ser.write(b":G#")
-            time.sleep(0.1)
-            p = str(self.ser.read(self.ser.in_waiting), "ascii")
-            if p[0] != "1":
-                print ('Nexus not responding')
-                #return
-            '''
-            self.nexus_link = "USB"
+            #self.nexus_link = "USB"
         except:
             print ("cant open USB to Nexus")
 
@@ -54,7 +45,6 @@ class Nexus:
         """
 
         self.ser.write(bytes(txt.encode("ascii")))
-
         print("sent", txt, "to Nexus")
 
     def writeBytes(self,byt):
@@ -73,7 +63,6 @@ class Nexus:
         self.ser.write(bytes(txt.encode("ascii")))
         time.sleep(0.2)
         res = str(self.ser.read(self.ser.in_waiting).decode("ascii")).strip("#")
-        #print("sent", txt, "got", res, "from Nexus")
         return res
 
     def scan(self):
@@ -85,10 +74,12 @@ class Nexus:
         """Establishes that Nexus DSC is talking to us and get observer location and time data"""
         Lt = self.get(":Gt#")[0:6].split("*")
         self.lat = float(Lt[0] + "." + Lt[1])
+        time.sleep(0.1)
         Lg = self.get(":Gg#")[0:7].split("*")
         self.long = -1 * float(Lg[0] + "." + Lg[1])
         self.location = self.coordinates.get_earth() + wgs84.latlon(self.lat, self.long)
         self.site = wgs84.latlon(self.lat,self.long)
+        time.sleep(0.1)
         local_time = self.get(":GL#")
         time.sleep(0.1)
         local_date = self.get(":GC#")
@@ -107,10 +98,7 @@ class Nexus:
         format = "%m/%d/%Y %H:%M:%S"
         local_dt = datetime.strptime(dt_str, format)
         new_dt = local_dt + timedelta(hours=local_offset)
-        #print("Calculated UTC", new_dt)
-        #print("setting pi clock to:", end=" ")
         os.system('sudo date -u --set "%s"' % new_dt + ".000Z")
-
         time.sleep(0.2)
 
         
