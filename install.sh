@@ -123,6 +123,7 @@ echo "**************************************************************************
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
 sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
 #echo 'dtoverlay=dwc2' | sudo tee -a /boot/firmware/config.txt > /dev/null
+echo 'vm.swappiness = 0' | sudo tee -a /etc/sysctl.conf > /dev/null
 
 sudo raspi-config nonint do_boot_behaviour B2
 #sudo raspi-config nonint do_hostname efinder
