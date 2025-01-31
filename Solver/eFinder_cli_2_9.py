@@ -428,7 +428,10 @@ def getScopeAlt():
             print('Below horizon')
             alt = '-1'
         else:
-            alt = 180/math.pi * math.asin(angle.acceleration[2]/11.5)
+            try:
+                alt = 180/math.pi * math.asin(angle.acceleration[2]/11.5)
+            except:
+                alt = 89
             alt = ('%2d' % (alt))
             print (alt)        
     else:
