@@ -421,7 +421,7 @@ def setLED(b):
 def getScopeAlt():
     print('getting scope Alt')
     if altAngle:
-        if angle.acceleration[1] <0:
+        if angle.acceleration[1] > 0:
             print ('Past Zenith')
             alt = '99'
         elif angle.acceleration[2] < 0:
