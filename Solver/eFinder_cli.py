@@ -230,6 +230,7 @@ def measure_offset():
     print (name + ', HIP ' + hipId)
     offset_flag = False
     nexus.write(name+',HIP'+hipId+','+offset_str+'#')
+    solveImage()
 
 def go_solve():
     capture(float(param['Exposure']))
