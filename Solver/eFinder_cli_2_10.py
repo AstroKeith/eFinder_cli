@@ -229,6 +229,7 @@ def measure_offset():
                     break       
     print (name + ', HIP ' + hipId)
     offset_flag = False
+    solveImage()
     nexus.write(name+',HIP'+hipId+','+offset_str+'#')
 
 def go_solve():
