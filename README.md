@@ -1,5 +1,6 @@
 # eFinder cli
 
+![IMG_6790](https://github.com/user-attachments/assets/15d95f3e-2b0b-4bfa-b234-c52bd2c7e699)
 
 ## Basics
 
