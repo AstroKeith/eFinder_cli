@@ -28,19 +28,19 @@ echo " "
 echo "*****************************************************************************"
 echo "Installing new astrometry packages"
 echo "*****************************************************************************"
-sudo apt install -y python3-skyfield
+#sudo apt install -y python3-skyfield
 
 python -m venv /home/efinder/venv-efinder --system-site-packages
 
 venv-efinder/bin/python venv-efinder/bin/pip install adafruit-circuitpython-adxl34x
-venv-efinder/bin/python venv-efinder/bin/pip install grpcio
-venv-efinder/bin/python venv-efinder/bin/pip install grpcio-tools
+#venv-efinder/bin/python venv-efinder/bin/pip install grpcio
+#venv-efinder/bin/python venv-efinder/bin/pip install grpcio-tools
 venv-efinder/bin/python venv-efinder/bin/pip install gdown
 venv-efinder/bin/python venv-efinder/bin/pip install gps3
 venv-efinder/bin/python venv-efinder/bin/pip install tzlocal
 
-sudo -u efinder git clone https://github.com/smroid/cedar-detect.git
-sudo -u efinder git clone https://github.com/smroid/cedar-solve.git
+#sudo -u efinder git clone https://github.com/smroid/cedar-detect.git
+#sudo -u efinder git clone https://github.com/smroid/cedar-solve.git
 
 
 cd $HOME
@@ -50,18 +50,8 @@ echo "Downloading eFinder_cli from AstroKeith GitHub"
 echo "*****************************************************************************"
 sudo -u efinder git clone https://github.com/AstroKeith/eFinder_cli.git
 echo " "
-echo "*****************************************************************************"
-echo "Installing ASI camera support"
-echo "*****************************************************************************"
-cd eFinder_cli
-tar xf ASI_linux_mac_SDK_V1.31.tar.bz2
-cd ASI_linux_mac_SDK_V1.31/lib
-sudo mkdir /lib/zwoasi
-sudo mkdir /lib/zwoasi/armv8
-sudo cp armv8/*.* /lib/zwoasi/armv8
-sudo install asi.rules /lib/udev/rules.d
+
 cd $HOME
-venv-efinder/bin/python venv-efinder/bin/pip install zwoasi
 
 echo "tmpfs /var/tmp tmpfs nodev,nosuid,size=10M 0 0" | sudo tee -a /etc/fstab > /dev/null
 echo " "
@@ -110,10 +100,10 @@ echo " "
 echo "*****************************************************************************"
 echo "installing Tetra databases"
 echo "*****************************************************************************"
-sudo cp -r /home/efinder/eFinder_cli/tetra3 venv-efinder/lib/python3.11/site-packages
-sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
+#sudo cp -r /home/efinder/eFinder_cli/tetra3 venv-efinder/lib/python3.11/site-packages
+#sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
 #sudo cp /home/efinder/eFinder_cli/Solver/cedar-detect-server /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/bin
-sudo chmod a+rwx -R /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3
+#sudo chmod a+rwx -R /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3
 
 
 echo " "
