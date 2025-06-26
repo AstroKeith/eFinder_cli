@@ -14,11 +14,9 @@
 import os
 import sys
 import RPi.GPIO as GPIO
-
 import math
 
 pinLED = 17
-
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)    
 GPIO.setup(pinLED, GPIO.OUT)   
@@ -37,20 +35,17 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "02.11"
+version = "03_01"
 
 print ('Nexus eFinder','Version '+ version)
-print ('ScopeDog eFinder','Lite','Loading program')
+print ('Loading program')
 import time
 
 from PIL import Image, ImageDraw, ImageEnhance
 
-from skyfield.api import Star
 import numpy as np
-import Nexus_Usb
-import Coordinates_Lite
-from tetra3 import Tetra3, cedar_detect_client
-cedar_detect = cedar_detect_client.CedarDetectClient()
+import NexusUsb
+from tetra3 import Tetra3
 import tetra3
 import csv
 from io import BytesIO
@@ -88,7 +83,6 @@ except:
     pass
 
 def pixel2dxdy(pix_x, pix_y):  # converts a pixel position, into a delta angular offset from the image centre
-    #global cam
     deg_x = (float(pix_x) - cam[0]/2) * cam[2]/3600  # in degrees
     deg_y = (cam[1]/2 - float(pix_y)) * cam[2] / 3600
     dxstr = "{: .1f}".format(float(60 * deg_x))  # +ve if finder is left of main scope
@@ -96,7 +90,6 @@ def pixel2dxdy(pix_x, pix_y):  # converts a pixel position, into a delta angular
     return (deg_x, deg_y, dxstr, dystr)
 
 def dxdy2pixel(dx, dy): # converts offsets in arcseconds to pixel position
-    #global cam
     pix_x = dx * 3600 / cam[2] + cam[0]/2
     pix_y = cam[1]/2 - dy * 3600 / cam[2]
     dxstr = "{: .1f}".format(float(60 * dx))  # +ve if finder is left of main scope
@@ -125,20 +118,11 @@ def capture(exp ):
 
 def solveImage():
     global offset_flag, solve, solvedPos, eTime, solved_radec, solved_altaz, firstStar, solution, cam, stars, peak, radec
-
     start_time = time.time()
     print ("Started solving", "", "")
     captureFile = destPath + "capture.png"
     with Image.open(captureFile).convert('L') as img:
         np_image = np.asarray(img, dtype=np.uint8)
-        '''
-        centroids = cedar_detect.extract_centroids(
-            img,
-            max_size=10,
-            sigma=8,
-            use_binned=False,
-            )
-        '''
         centroids = tetra3.get_centroids_from_image(
             np_image,
             downsample=1,
@@ -172,17 +156,7 @@ def solveImage():
     firstStar = centroids[0]
     ra = solution['RA_target']
     dec = solution['Dec_target']
-    solved = Star(
-        ra_hours=ra / 15, dec_degrees=dec
-    )  # will set as J2000 as no epoch input
-    solvedPos = (
-        nexus.get_location().at(coordinates.get_ts().now()).observe(solved)
-    )  # now at Jnow and current location
-
-    ra, dec, d = solvedPos.apparent().radec(coordinates.get_ts().now())
-    solved_radec = ra.hours, dec.degrees
-    solved_altaz = coordinates.conv_altaz(nexus, *(solved_radec))
-    radec = ('g%5.3f %+5.3f#' % (solved_radec[0],solved_radec[1]))
+    radec = ('%6.4f %+6.4f#' % (ra/15,dec))
     solve = True
 
     
@@ -229,20 +203,17 @@ def measure_offset():
                     break       
     print (name + ', HIP ' + hipId)
     offset_flag = False
-    nexus.write(name+',HIP'+hipId+','+offset_str+'#')
+    return(name+',HIP'+hipId+','+offset_str)
 
 def go_solve():
     capture(float(param['Exposure']))
     solveImage()
     if solve == True:
         print ("Solved", "", "")
-        nexus.write('1#')
+        return('1')
     else:
         print ("Not Solved", "", "")
-        nexus.write('0#')
-        return
-
-
+        return('0')
 
 def reset_offset():
     global param, offset, offset_str
@@ -251,7 +222,7 @@ def reset_offset():
     offset = (cam[0]/2, cam[1]/2) # default centre of the image
     offset_str = ('%1.3f,%1.3f' % (float(param["d_x"])/60, float(param["d_y"])/60))
     save_param()
-    nexus.write('1#')
+    return('1')
 
 def get_param():
     global param
@@ -261,7 +232,6 @@ def get_param():
                 line = line.strip("\n").split(":")
                 param[line[0]] = str(line[1])
                 
-
 
 def save_param():
     with open(home_path + "/Solver/eFinder.config", "w") as h:
@@ -304,9 +274,9 @@ def loopFocus(x):
             print ('No stars found','','')
             solve = False
             if x == 1:
-                nexus.write('0#')
+                return('0')
             return
-        stars = ('%4d' % (len(centroids)))
+        stars = str(len(centroids))
         peak = ('%3d' % (np.max(np_image)))
         solve = True
         
@@ -342,8 +312,7 @@ def loopFocus(x):
         psfArray = np.asarray(psfPlot, dtype=np.uint8) # 32x32 PSF np.array
         print('PSF',psfArray)
         if x == 1:
-            nexus.write('1#')
-        return
+            return('1')
     
 def setExp(a):
     global param
@@ -382,12 +351,12 @@ def flipTestMode(mode):
         cam = Testcam
         t3 = Tetra3('t3_fov14_mag8')
         testMode = True
-        nexus.write('1#')
+        return('1')
     else:
         testMode = False
         cam = camCam
         t3 = Tetra3(dataBase)
-        nexus.write('0#')
+        return('0')
 
 def array_to_bytes(x: np.ndarray) -> bytes:
     np_bytes = BytesIO()
@@ -518,15 +487,7 @@ def getCropImage(msg):
 
 # main code starts here
 
-coordinates = Coordinates_Lite.Coordinates()
-nexus = Nexus_Usb.Nexus(coordinates)
-while True:
-    try:
-        nexus.read()
-        break
-    except:
-        time.sleep(1)
-        print ('waiting')
+nexus = NexusUsb.Nexus()
 
 if param["Camera"]=='ASI':
     import ASICamera_Nexus
@@ -563,35 +524,40 @@ print(offset)
 np_image = np.zeros((760,960),dtype=np.uint8)
 destPath = "/var/tmp/solve/"
 
+flipTestMode(True)
+go_solve()
+flipTestMode(False)
+
 cmd = {
-    "PS" : "go_solve()",
-    "OF" : "measure_offset()",
-    "FS" : "loopFocus(1)",
+    "PS" : "nexus.write('PS'+go_solve()+'#')",
+    "OF" : "nexus.write('OF'+measure_offset()+'#')",
+    "FS" : "nexus.write('FS'+loopFocus(1)+'#')",
     "GP" : "nexus.writeBytes(array_to_bytes(psfArray))",
     "GI" : "nexus.writeBytes(array_to_bytes(patch))",
-    "GR" : "nexus.write(radec)",
-    "TS" : "flipTestMode(True)",
-    "TO" : "flipTestMode(False)",
-    "GV" : "nexus.write(version)",
-    "GO" : "nexus.write(offset_str+'#')",
-    "SO" : "reset_offset()",
-    "GS" : "nexus.write(str(stars)+'#')",
-    "GK" : "nexus.write(str(peak)+'#')",
-    "Gt" : "nexus.write(eTime+'#')",
-    "SE" : "nexus.write(adjExp(float(msg[3:5]))+'#')",
-    "SG" : "nexus.write(adjGain(float(msg[3:5]))+'#')",
-    "SX" : "nexus.write(setExp(msg.strip('#')[3:])+'#')",
-    "GX" : "nexus.write(getAutoExp()+'#')",
+    "GR" : "nexus.write('GR'+radec)",
+    "TS" : "nexus.write('TS'+flipTestMode(True)+'#')",
+    "TO" : "nexus.write('TO'+flipTestMode(False)+'#')",
+    "GV" : "nexus.write('GV'+version)",
+    "GO" : "nexus.write('GO'+offset_str+'#')",
+    "SO" : "nexus.write('SO'+reset_offset()+'#')",
+    "GS" : "nexus.write('GS'+str(stars)+'#')",
+    "GK" : "nexus.write('GK'+str(peak)+'#')",
+    "Gt" : "nexus.write('Gt'+eTime+'#')",
+    "SE" : "nexus.write('SE'+adjExp(float(msg[3:5]))+'#')",
+    "SG" : "nexus.write('SG'+adjGain(float(msg[3:5]))+'#')",
+    "SX" : "nexus.write('SX'+setExp(msg.strip('#')[3:])+'#')",
+    "GX" : "nexus.write('GX'+getAutoExp()+'#')",
     "LI" : "loopImage()",
     "LP" : "loopPsf()",
-    "SB" : "nexus.write(setLED(float(msg[3:5]))+'#')",
-    "GA" : "nexus.write(getScopeAlt()+'#')",
+    "SB" : "nexus.write('SB'+setLED(float(msg[3:5]))+'#')",
+    "GA" : "nexus.write('GA'+getScopeAlt()+'#')",
     "GZ" : "nexus.writeBytes(array_to_bytes(getImage(msg.strip('#'))))",
     "Gz" : "nexus.writeBytes(array_to_bytes(getCropImage(msg.strip('#'))))"
 }
 p.stop()
 p = GPIO.PWM(pinLED,100)
 p.start(int(float(param["LED"])))
+nexus.write('ID=eFinder')
 
 while True:
     msg = nexus.scan()
@@ -602,5 +568,4 @@ while True:
         except Exception as error:
             nexus.write('Error')
             print ('Error',error) 
-
     time.sleep(0.05) 
