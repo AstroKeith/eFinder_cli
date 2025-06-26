@@ -24,9 +24,6 @@ The eFinder cli is designed to operate alongside a Nexus DSC Pro.
 
 
 ## Operation
-Plug the eFinder into the Nexus DSC port.
-Turn on the Nexus DSC which will power up the eFinder cli.
-The eFinder cli will autostart on power up.
 
 ssh & Samba file sharing is enabled at efinder.local, or whatever hostname you have chosen.
 
@@ -36,5 +33,5 @@ A forum for builders and users can be found at https://groups.io/g/eFinder
 
 ## Acknowledgements and Licences
 
-The eFinder Lite uses Tetra3, Cedar-Detect & Cedar-Solve. Please refer to the licence and other notes in the Tetra3 folder
+The eFinder Cli uses Tetra3. Please refer to the licence and other notes in the Tetra3 folder
 
