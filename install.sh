@@ -100,8 +100,9 @@ echo " "
 echo "*****************************************************************************"
 echo "installing Tetra databases"
 echo "*****************************************************************************"
+venv-efinder/bin/python venv-efinder/bin/pip install git+https://github.com/esa/tetra3.git
 #sudo cp -r /home/efinder/eFinder_cli/tetra3 venv-efinder/lib/python3.11/site-packages
-#sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
+sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
 #sudo cp /home/efinder/eFinder_cli/Solver/cedar-detect-server /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/bin
 #sudo chmod a+rwx -R /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3
 
