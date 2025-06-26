@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "eFinder cli install with Cedar-solve"
+echo "eFinder cli install"
 echo " "
 echo "*****************************************************************************"
 echo "Updating Pi OS & packages"
