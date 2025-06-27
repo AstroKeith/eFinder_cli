@@ -18,30 +18,16 @@ sudo apt install -y python3-pil
 sudo apt install -y python3-pil.imagetk
 sudo apt install -y git
 sudo apt install -y python3-smbus
-#sudo apt install -y python3-picamera2
-#sudo apt install -y gpsd
-
+sudo apt install -y python3-picamera2
+sudo apt install -y python3-scipy
 
 HOME=/home/efinder
 cd $HOME
 echo " "
-echo "*****************************************************************************"
-echo "Installing new astrometry packages"
-echo "*****************************************************************************"
-#sudo apt install -y python3-skyfield
 
 python -m venv /home/efinder/venv-efinder --system-site-packages
-
 venv-efinder/bin/python venv-efinder/bin/pip install adafruit-circuitpython-adxl34x
-#venv-efinder/bin/python venv-efinder/bin/pip install grpcio
-#venv-efinder/bin/python venv-efinder/bin/pip install grpcio-tools
 venv-efinder/bin/python venv-efinder/bin/pip install gdown
-#venv-efinder/bin/python venv-efinder/bin/pip install gps3
-#venv-efinder/bin/python venv-efinder/bin/pip install tzlocal
-
-#sudo -u efinder git clone https://github.com/smroid/cedar-detect.git
-#sudo -u efinder git clone https://github.com/smroid/cedar-solve.git
-
 
 cd $HOME
 echo " "
@@ -62,19 +48,8 @@ mkdir /home/efinder/Solver
 mkdir /home/efinder/Solver/images
 mkdir /home/efinder/Solver/data
 
-
 cp /home/efinder/eFinder_cli/Solver/*.* /home/efinder/Solver
-#cp /home/efinder/eFinder_cli/Solver/de421.bsp /home/efinder
 cp /home/efinder/eFinder_cli/Solver/starnames.csv /home/efinder/Solver/data
-
-echo " "
-echo "*****************************************************************************"
-echo "Installing GPIO drivers"
-echo "*****************************************************************************"
-cd $HOME
-sudo apt install -y python3-rpi-lgpio
-cd /home/efinder/Solver
-unzip drive.zip
 
 cd $HOME
 echo " "
@@ -98,15 +73,12 @@ sudo systemctl restart smbd
 cd $HOME
 echo " "
 echo "*****************************************************************************"
-echo "installing Tetra databases"
+echo "installing Tetra and its databases"
 echo "*****************************************************************************"
 sudo -u efinder git clone https://github.com/esa/tetra3.git
-#venv-efinder/bin/python venv-efinder/bin/pip install git+https://github.com/esa/tetra3.git
-#sudo cp -r /home/efinder/eFinder_cli/tetra3 venv-efinder/lib/python3.11/site-packages
+cd tetra3
+venv-efinder/bin/python venv-efinder/bin/pip install.
 sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
-#sudo cp /home/efinder/eFinder_cli/Solver/cedar-detect-server /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/bin
-#sudo chmod a+rwx -R /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3
-
 
 echo " "
 echo "*****************************************************************************"
@@ -114,15 +86,10 @@ echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
 sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
-#echo 'dtoverlay=dwc2' | sudo tee -a /boot/firmware/config.txt > /dev/null
-echo 'vm.swappiness = 0' | sudo tee -a /etc/sysctl.conf > /dev/null
 
+echo 'vm.swappiness = 0' | sudo tee -a /etc/sysctl.conf > /dev/null
 sudo raspi-config nonint do_boot_behaviour B2
-#sudo raspi-config nonint do_hostname efinder
 sudo raspi-config nonint do_ssh 0
-#sudo raspi-config nonint do_serial_hw 0
-#sudo raspi-config nonint do_serial_cons 1
-#sudo raspi-config nonint do_spi 0
 sudo raspi-config nonint do_i2c 0
 
 sudo reboot now
