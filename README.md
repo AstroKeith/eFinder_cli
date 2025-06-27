@@ -9,18 +9,18 @@ Code for AltAz telescopes (primarily Dobsonians) to utilise plate-solving to imp
 Requires:
 
 - microSd card loaded with Raspberry Pi 64bit Bookworm OS Lite (No desktop)
-- Raspberry Pi Zero 2W. 
+- Raspberry Pi Zero 2W.
+- ADXL343 acceleromter sensor
 - A custom box 
-- A Nexus DSC with optical encoders. USB cable from Nexus port to the UART port on the Pi Zero.
-- A Camera, either the RP HQ Camera module (recommended) of an ASI Camera (Suggest ASI120MM-mini)
-- Camera lens, either 25 or 50mm. f1.8 or faster cctv lens
+- A Camera, either the RP HQ Camera module (recommended) or an ASI Camera (Suggest ASI120MM-mini)
+- Camera lens, 25 f1.8 or faster cctv lens
 
 Full details at [
 ](https://astrokeith.com/equipment/efinder/efinder-lite)https://astrokeith.com/equipment/efinder/efinder-lite
 
 ## Compatibility
 
-The eFinder cli is designed to operate alongside a Nexus DSC Pro.
+The eFinder cli is designed to operate alongside a host computer
 
 
 ## Operation
@@ -33,5 +33,5 @@ A forum for builders and users can be found at https://groups.io/g/eFinder
 
 ## Acknowledgements and Licences
 
-The eFinder Cli uses Tetra3. Please refer to the licence and other notes in the Tetra3 folder
+The eFinder Cli uses Tetra3.
 
