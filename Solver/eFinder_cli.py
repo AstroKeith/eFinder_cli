@@ -344,9 +344,11 @@ def loopPsf():
 
 def getScopeAlt():
     print('getting scope Alt')
+    
     if altAngle:
         x,y,z = angle.acceleration
-        if z < 0:
+        print(x,y,z)
+        if z > 0:
             print('below horizon')
             alt = '-1'    
         elif x > 0:
@@ -354,7 +356,7 @@ def getScopeAlt():
             alt = '99'
         else:
             try:
-                alt = 180/math.pi * math.asin(z/11.5)
+                alt = -180/math.pi * math.asin(z/10)
             except:
                 alt = 89
             alt = ('%2d' % (alt))
