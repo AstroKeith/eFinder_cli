@@ -77,7 +77,8 @@ echo "installing Tetra and its databases"
 echo "*****************************************************************************"
 sudo -u efinder git clone https://github.com/esa/tetra3.git
 cd tetra3
-venv-efinder/bin/python /home/efinder/venv-efinder/bin/pip install .
+/home/efinder/venv-efinder/bin/pip install .
+cd $HOME
 sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
 
 cd $HOME
