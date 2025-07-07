@@ -1,6 +1,7 @@
 from pathlib import Path
 from shutil import copyfile
 from CameraInterface import CameraInterface
+import sys
 
 from picamera2 import Picamera2
 
@@ -15,10 +16,13 @@ class RPICamera(CameraInterface):
 
         self.home_path = str(Path.home())
         self.camType = "RPI"
-        self.picam2 = Picamera2()
-        self.camera_config = self.picam2.create_still_configuration({"size":(960,760)})
-        self.picam2.configure(self.camera_config)
-        
+        try:
+            self.picam2 = Picamera2()
+            self.camera_config = self.picam2.create_still_configuration({"size":(960,760)})
+            self.picam2.configure(self.camera_config)
+        except:
+            print ('Camera not found or accessible')
+            sys.exit()
         
     def capture(
         self, exposure_time: float, gain: float, m13: bool, polaris: bool, destPath: str) -> None:
@@ -32,9 +36,6 @@ class RPICamera(CameraInterface):
         polaris (bool): True if the example image of Polaris should be used
         destPath (str): path to folder to save images, depends on Ramdisk selection
         """
-        if self.camType == "not found":
-            print ("camera not found", "", "")
-            exit()
         
         if m13 == True:
             print(self.home_path + "/Solver/test.png", destPath+"capture.png")
