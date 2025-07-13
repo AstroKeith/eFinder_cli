@@ -81,6 +81,19 @@ cd tetra3
 cd $HOME
 sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
 
+echo " "
+echo "*****************************************************************************"
+echo "Setting up web page server"
+echo "*****************************************************************************"
+sudo apt-get install -y apache2
+sudo apt-get install -y php8.2
+sudo chmod a+rwx /home/efinder
+sudo chmod a+rwx /home/efinder/Solver/images
+sudo cp eFinder_cli/Solver/index.php /var/www/html
+sudo mv /var/www/html/index.html /var/www/html/apacheindex.html
+sudo chmod -R 755 /var/www/html
+
+
 cd $HOME
 echo " "
 echo "*****************************************************************************"
