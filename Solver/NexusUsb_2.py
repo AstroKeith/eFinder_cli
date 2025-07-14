@@ -30,10 +30,12 @@ class Nexus:
     def writeBytes(self,txt,byt):
         #print('byte array length',len(byt))
         self.ser.write(bytes(txt.encode("ascii")))
-        for i in range (0,1024,64):
-            pkt = byt[i:i+64]
+        time.sleep(0.01)
+        for i in range (0,1024,32):
+            pkt = byt[i:i+32]
             #print('pkt',len(pkt),pkt)
             self.ser.write(pkt)
+            time.sleep(0.01)
 
     def get(self, txt: str):
         """Receive a message from the Nexus DSC
