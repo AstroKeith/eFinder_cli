@@ -29,7 +29,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "04.06"
+version = "04.07"
 
 print ('Nexus eFinder','Version '+ version)
 print ('Loading program')
@@ -273,18 +273,19 @@ def doFocus(x):
         patch = np_image[x1:x2,y1:y2] # 32x32 array of star
         print('patch',patch)
 
-        psfPlot = Image.new("1",(32,32))
+        img_supersample = Image.new("L",(32*8,32*8))
         shape=[]
         for h in range (x1,x2):
-            shape.append(((h-x1),int((255-np_image[h][y1+w])/8)))
-        draw = ImageDraw.Draw(psfPlot)
-        draw.line(shape,fill="white",width=1)
+            shape.append(((h-x1)*8,int((255-np_image[h][y1+w]))))
+        draw = ImageDraw.Draw(img_supersample)
+        draw.line(shape,fill="white",width=8,joint="curve")
         shape=[]
         for h in range (y1,y2):
-            shape.append(((h-y1),int((255-np_image[x1+w][h])/8)))
-        draw = ImageDraw.Draw(psfPlot)
-        draw.line(shape,fill="white",width=1)
+            shape.append(((h-y1)*8,int((255-np_image[x1+w][h]))))
+        draw = ImageDraw.Draw(img_supersample)
+        draw.line(shape,fill="white",width=8,joint="curve")
 
+        psfPlot = img_supersample.resize((32, 32), Image.Resampling.LANCZOS)
         psfArray = np.asarray(psfPlot, dtype=np.uint8) # 32x32 PSF np.array
         print('PSF',psfArray)
         if x == 1:
@@ -503,6 +504,6 @@ while True:
         try:
             exec(cmd[msg[1:3]])
         except Exception as error:
-            nexus.write('Error')
+            nexus.write(':EF'+str(error)+'#')
             print ('Error',error) 
     time.sleep(0.05) 
