@@ -34,7 +34,7 @@ version = "05.01"
 print ('Nexus eFinder','Version '+ version)
 print ('Loading program')
 import time
-from PIL import Image, ImageDraw, ImageEnhance
+from PIL import Image, ImageDraw, ImageEnhance, ImageOps
 import numpy as np
 import NexusUsb_2
 import RPICamera_Nexus_2
@@ -241,6 +241,7 @@ def doFocus(x):
     with Image.open("/var/tmp/solve/capture.png") as img:
         img = img.convert(mode='L')
         img2 = ImageEnhance.Contrast(img).enhance(5)
+        img2 = ImageOps.expand(img2,border=5,fill='red')
         img2 = img2.save('/home/efinder/Solver/images/capture.png')
         np_image = np.asarray(img, dtype=np.uint8)
         centroids = tetra3.get_centroids_from_image(
