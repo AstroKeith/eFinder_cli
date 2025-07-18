@@ -29,7 +29,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "04.07"
+version = "05.01"
 
 print ('Nexus eFinder','Version '+ version)
 print ('Loading program')
@@ -64,6 +64,7 @@ stars = peak = '0'
 patch = np.zeros((32,32),dtype=np.uint8)
 psfArray = np.zeros((32,32),dtype=np.uint8)
 auto = False
+hotspot = False
 
 try:
     os.mkdir("/var/tmp/solve")
@@ -451,6 +452,36 @@ def getCropImage(msg):
     block = np_image[n:n+8,0:w]
     return block
 
+def setWifi(msg):
+    global hotspot
+    if msg == "":
+        if hotspot == True:
+            return '1'
+        else:
+            return '0'
+    elif msg == " ":
+        try:
+            os.system('sudo nmcli device disconnect wlan0')
+            os.system('sudo nmcli connection up preconfigured')
+            hotspot = False
+            return '1'
+        except:
+            return '0'
+    else:
+        try:
+            sid,pswd = msg.split(" ")
+            ssid = 'efinder'+sid
+            #os.system("sudo nmcli device wifi hotspot ssid 'efinder' password 'efinder1'")
+            os.system("sudo nmcli device wifi hotspot ssid '"+ ssid +"' password '" + pswd + "'")
+            hotspot = True
+            #time.sleep(5)
+            #hostname = socket.gethostname()
+            #addr = socket.gethostbyname(hostname + '.local')
+            return '1'
+        except:
+            return '0'
+
+
 # main code starts here
 
 nexus = NexusUsb_2.Nexus()
@@ -492,7 +523,8 @@ cmd = {
     "LP" : "loopPsf()",
     "GA" : "nexus.write(':GA'+getScopeAlt()+'#')",
     "GZ" : "nexus.writeBytes('',array_to_bytes_full(getImage(msg.strip('#'))))",
-    "Gz" : "nexus.writeBytes('',array_to_bytes_full(getCropImage(msg.strip('#'))))"
+    "Gz" : "nexus.writeBytes('',array_to_bytes_full(getCropImage(msg.strip('#'))))",
+    "WS" : "nexus.write(':WS'+setWifi(msg.strip('#')[3:])+'#')"
 }
 
 nexus.write(':ID=eFinderLite#')
