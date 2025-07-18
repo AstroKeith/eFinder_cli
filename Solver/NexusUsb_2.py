@@ -1,7 +1,5 @@
 import serial
 import time
-from datetime import datetime, timedelta
-import os
 
 class Nexus:
     """The Nexus utility class"""
