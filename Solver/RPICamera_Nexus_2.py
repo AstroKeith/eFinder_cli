@@ -1,10 +1,9 @@
 from pathlib import Path
 from shutil import copyfile
-from CameraInterface import CameraInterface
 import time
 from picamera2 import Picamera2
 
-class RPICamera(CameraInterface):
+class RPICamera():
     """The camera class for RPI cameras.  Implements the CameraInterface interface."""
 
     def __init__(self) -> None:
