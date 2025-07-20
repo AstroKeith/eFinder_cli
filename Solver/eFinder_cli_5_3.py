@@ -29,7 +29,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "05.02"
+version = "05.03"
 
 print ('Nexus eFinder','Version '+ version)
 print ('Loading program')
