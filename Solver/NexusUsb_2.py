@@ -1,5 +1,7 @@
 import serial
 import time
+from datetime import datetime, timedelta
+import os
 
 class Nexus:
     """The Nexus utility class"""
@@ -22,7 +24,7 @@ class Nexus:
         txt (str): The text to send to the Nexus DSC
         """
 
-        self.ser.write(bytes(txt.encode("ascii")))
+        self.ser.write(bytes(txt.encode("cp1253")))
         print("sent", txt, "to Nexus")
 
     def writeBytes(self,txt,byt):

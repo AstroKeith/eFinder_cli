@@ -1,97 +1,438 @@
-﻿Acamar              ,13847
-Achernar            ,7588
-Acrux               ,60718
-Adhara              ,33579
-Agena               ,68702
-Albireo             ,95947
-Alcor               ,65477
-Alcyone             ,17702
-Aldebaran           ,21421
-Alderamin           ,105199
-Algenib             ,1067
-Algieba             ,50583
-Algol               ,14576
-Alhena              ,31681
-Alioth              ,62956
-Alkaid              ,67301
-Almaak              ,9640
-Alnair              ,109268
-Alnath              ,25428
-Alnilam             ,26311
-Alnitak             ,26727
-Alphard             ,46390
-Alphekka            ,76267
-Alpheratz           ,677
-Alshain             ,98036
-Altair              ,97649
-Ankaa               ,2081
-Antares             ,80763
-Arcturus            ,69673
-Arneb               ,25985
-Babcock's star      ,112247
-Barnard's star      ,87937
-Bellatrix           ,25336
-Betelgeuse          ,27989
-Campbell's star     ,96295
-Canopus             ,30438
-Capella             ,24608
-Caph                ,746
-Castor              ,36850
-Cor Caroli          ,63125
-Cyg X-1             ,98298
-Deneb               ,102098
-Denebola            ,57632
-Diphda              ,3419
-Dubhe               ,54061
-Enif                ,107315
-Etamin              ,87833
-Fomalhaut           ,113368
-Groombridge 1830    ,57939
-Hadar               ,68702
-Hamal               ,9884
-Izar                ,72105
-Kapteyn's star      ,24186
-Kaus Australis      ,90185
-Kocab               ,72607
-Kruger 60           ,110893
-Luyten's star       ,36208
-Markab              ,113963
-Megrez              ,59774
-Menkar              ,14135
-Merak               ,53910
-Mintaka             ,25930
-Mira                ,10826
-Mirach              ,5447
-Mirphak             ,15863
-Mizar               ,65378
-Nihal               ,25606
-Nunki               ,92855
-Phad                ,58001
-Pleione             ,17851
-Polaris             ,11767
-Pollux              ,37826
-Procyon             ,37279
-Proxima             ,70890
-Rasalgethi          ,84345
-Rasalhague          ,86032
-Red Rectangle       ,30089
-Regulus             ,49669
-Rigel               ,24436
-Rigil Kent          ,71683
-Sadalmelik          ,109074
-Saiph               ,27366
-Scheat              ,113881
-Shaula              ,85927
-Shedir              ,3179
-Sheliak             ,92420
-Sirius              ,32349
-Spica               ,65474
-Tarazed             ,97278
-Thuban              ,68756
-Unukalhai           ,77070
-Van Maanen 2        ,3829
-Vega                ,91262
-Vindemiatrix        ,63608
-Zaurak              ,18543
-3C 273              ,60936
-},
+Alpheratz,677,α And,And
+Caph,746,β Cas,Cas
+Algenib,1067,γ Peg,Peg
+Citadelle,1547,,Psc
+Ankaa,2081,α  Phe,Phe
+Felixvarela,2247,,Cet
+Fulu,2920,ζ Cas,Cas
+Schedar,3179,α Cas,Cas
+Diphda,3419,β Cet,Cet
+Cocibolca,3479,,Scl
+Shimu,3693,ζ And,And
+Achird,3821,η Cas,Cas
+Castula,4422,υ2 Cas,Cas
+Kui,4463,η And,And
+Nenque,5054,,Phe
+Wurren,5348,ζ Phe,Phe
+Mirach,5447,β And,And
+Emiw,5529,,Tuc
+Revati,5737,ζ Psc,Psc
+Adhil,6411,ξ And,And
+Ruchbah,6686,δ Cas,Cas
+Alpherg,7097,η Psc,Psc
+Titawin,7513,υ And,And
+Achernar,7588,α Eri,Eri
+Nembus,7607,51 And,And
+Torcular,8198,ο Psc,Psc
+Baten Kaitos,8645,ζ Cet,Cet
+Mothallah,8796,α Tri,Tri
+Segin,8886,ε Cas,Cas
+Sheratan,8903,β Ari,Ari
+Alrescha,9487,α Psc,Psc
+Almach,9640,γ And,And
+Hamal,9884,α Ari,Ari
+Deltoton,10644,δ Tri,Tri
+Mira,10826,ο Cet,Cet
+Polaris,11767,α UMi,UMi
+Buna,12191,,And
+Kaffaljidhma,12706,γ Cet,Cet
+Koeia,12961,,Eri
+Lilii Borea,13061,39 Ari,Ari
+Nushagak,13192,,Cas
+Bharani,13209,41  Ari,Ari
+Miram,13268,η Per,Per
+Angetenar,13288,τ2 Eri,Eri
+Azha,13701,η Eri,Eri
+Acamar,13847,θ1 Eri,Eri
+Ayeyarwady,13993,,Eri
+Menkar,14135,α Cet,Cet
+Algol,14576,β Per,Per
+Misam,14668,κ Per,Per
+Botein,14838,δ Ari,Ari
+Dalim,14879,α For,For
+Zibal,15197,ζ Eri,Eri
+Intan,15578,,For
+Mirfak,15863,α Per,Per
+Ran,16537,ε Eri,Eri
+Tupi,17096,,Ret
+Rana,17378,δ Eri,Eri
+Atik,17448,ο Per,Per
+Celaeno,17489,16 Tau,Tau
+Electra,17499,17 Tau,Tau
+Taygeta,17531,19 Tau,Tau
+Maia,17573,20 Tau,Tau
+Asterope,17579,21 Tau,Tau
+Merope,17608,23 Tau,Tau
+Alcyone,17702,η Tau,Tau
+Atlas,17847,27 Tau,Tau
+Pleione,17851,28 Tau,Tau
+Zaurak,18543,γ Eri,Eri
+Menkib,18614,ξ Per,Per
+Beid,19587,ο1 Eri,Eri
+Rhombus,19780,α Ret,Ret
+Keid,19849,ο2 Eri,Eri
+Prima Hyadum,20205,γ Tau,Tau
+Secunda Hyadum,20455,δ1 Tau,Tau
+Beemim,20535,υ3 Eri,Eri
+Ain,20889,ε Tau,Tau
+Chamukuy,20894,θ2 Tau,Tau
+Hoggar,21109,,Tau
+Theemin,21393,υ2 Eri,Eri
+Aldebaran,21421,α Tau,Tau
+Sceptrum,21594,53 Eri,Eri
+Tabit,22449,π3 Ori,Ori
+Mouhoun,22491,,Eri
+Hassaleh,23015,ι Aur,Aur
+Almaaz,23416,ε Aur,Aur
+Saclateni,23453,ζ Aur,Aur
+Haedus,23767,η Aur,Aur
+Cursa,23875,β Eri,Eri
+Mago,24003,,Cam
+Rigel,24436,β Ori,Ori
+Capella,24608,α Aur,Aur
+Bellatrix,25336,γ Ori,Ori
+Elnath,25428,β Tau,Tau
+Nihal,25606,β Lep,Lep
+Mintaka,25930,δ Ori,Ori
+Arneb,25985,α Lep,Lep
+Meissa,26207,λ Ori,Ori
+Hatysa,26241,ι Ori,Ori
+Alnilam,26311,ε Ori,Ori
+Bubup,26380,,Men
+Tianguan,26451,ζ Tau,Tau
+Phact,26634,α Col,Col
+Alnitak,26727,ζ Ori,Ori
+Saiph,27366,κ Ori,Ori
+Wazn,27628,β Col,Col
+Betelgeuse,27989,α Ori,Ori
+Menkalinan,28360,β Aur,Aur
+Mahasim,28380,θ Aur,Aur
+Elkurud,29034,θ Col,Col
+Hoerikwaggo,29271,α Men,Men
+Amadioha,29550,,CMa
+Propus,29655,η Gem,Gem
+Furud,30122,ζ CMa,CMa
+Mirzam,30324,β Cma,CMa
+Tejat,30343,μ Gem,Gem
+Canopus,30438,α Car,Car
+Lucilinburhuc,30860,,Aur
+Alhena,31681,γ Gem,Gem
+Pipit,31685,ν Pup,Pup
+Nosaxa,31895,,Pup
+Mebsuta,32246,ε Gem,Gem
+Sirius,32349,α CMa,CMa
+Alzirr,32362,ξ Gem,Gem
+Nervia,32916,,Aur
+Adhara,33579,ε CMa,CMa
+Citalá,33719,,Mon
+Nganurganity,33856,σ CMa,CMa
+Unurgunite,33856,σ CMa,CMa
+Muliphein,34045,γ CMa,CMa
+Mekbuda,34088,ζ Gem,Gem
+Wezen,34444,δ CMa,CMa
+Wasat,35550,δ Gem,Gem
+Aludra,35904,η CMa,CMa
+Gomeisa,36188,β CMi,CMi
+Castor,36850,α Gem,Gem
+Jishui,37265,ο Gem,Gem
+Procyon,37279,α CMi,CMi
+Ceibo,37284,,Cha
+Pollux,37826,β Gem,Gem
+Tapecue,38041,,Car
+Azmidi,38170,ξ Pup,Pup
+Naos,39429,ζ Pup,Pup
+Tureis,39757,ρ Pup,Pup
+Tegmine,40167,ζ Cnc,Cnc
+Tarf,40526,β Cnc,Cnc
+Piautos,40881,λ Cnc,Cnc
+Avior,41037,ε Car,Car
+Alsciaukat,41075,31 Lyn,Lyn
+Muscida,41704,ο UMa,UMa
+Minchir,42402,σ Hya,Hya
+Gakyid,42446,,Cnc
+Meleph,42556,ε Cnc,Cnc
+Asellus Borealis,42806,γ Cnc,Cnc
+Asellus Australis,42911,δ Cnc,Cnc
+Alsephina,42913,δ Vel,Vel
+Ashlesha,43109,ε Hya,Hya
+Copernicus,43587,55 Cnc,Cnc
+Stribor,43674,,Lyn
+Acubens,44066,α Cnc,Cnc
+Talitha,44127,ι UMa,UMa
+Alkaphrah,44471,κ UMa,UMa
+Suhail,44816,λ Vel,Vel
+Nahn,44946,ξ Cnc,Cnc
+Miaplacidus,45238,β Car,Car
+Aspidiske,45556,ι Car,Car
+Markeb,45941,κ Vel,Vel
+Alphard,46390,α Hya,Hya
+Intercrus,46471,,UMa
+Alterf,46750,λ Leo,Leo
+Illyrian,47087,,LMi
+Kalausi,47202,,Vel
+Ukdah,47431,ι Hya,Hya
+Subra,47508,ο Leo,Leo
+Natasha,48235,,Vel
+Zhang,48356,υ1 Hya,Hya
+Rasalas,48455,μ Leo,Leo
+Felis,48615,,Hya
+Regulus,49669,α Leo,Leo
+Adhafera,50335,ζ Leo,Leo
+Tania Borealis,50372,λ UMa,UMa
+Algieba,50583,γ1 Leo,Leo
+Tania Australis,50801,μ UMa,UMa
+Shaomin,51624,ρ Leo,Leo
+Macondo,52521,,Ant
+Praecipua,53229,46 LMi,LMi
+Aiolos,53524,,Car
+Chalawan,53721,47 UMa,UMa
+Alkes,53740,α Crt,Crt
+Merak,53910,β UMa,UMa
+Dubhe,54061,α UMa,UMa
+Dingolay,54158,,Leo
+Zosma,54872,δ Leo,Leo
+Chertan,54879,θ Leo,Leo
+Alula Australis,55203,ξ UMa,UMa
+Alula Borealis,55219,ν UMa,UMa
+Shama,55664,,Leo
+Giausar,56211,λ Dra,Dra
+Formosa,56508,,Leo
+Sagarmatha,56572,,Leo
+Noquisi,57087,,Leo
+Uklun,57291,,Cen
+Flegetonte,57370,,Vir
+Taiyangshou,57399,χ UMa,UMa
+Denebola,57632,β Leo,Leo
+Zavijava,57757,β Vir,Vir
+Aniara,57820,,UMa
+Phecda,58001,γ UMa,UMa
+Tonatiuh,58952,,Cam
+Alchiba,59199,α Crv,Crv
+Imai,59747,δ Cru,Cru
+Megrez,59774,δ UMa,UMa
+Gienah,59803,γ Crv,Crv
+Zaniah,60129,η Vir,Vir
+Ginan,60260,ε Cru,Cru
+Acrux,60718,α Cru,Cru
+Algorab,60965,δ Crv,Crv
+Gacrux,61084,γ Cru,Cru
+Funi,61177,,Dra
+Chara,61317,β CVn,CVn
+Kraz,61359,β Crv,Crv
+Phyllon Kissinou,61394,,Com
+Porrima,61941,γ Vir,Vir
+La Superba,62223,Y CVn,CVn
+Tianyi,62423,7 Dra,Dra
+Mimosa,62434,β Cru,Cru
+Gar,62452,,Vir
+Alioth,62956,ε UMa,UMa
+Taiyi,63076,8 Dra,Dra
+Minelauva,63090,δ Vir,Vir
+Cor Caroli,63125,α2 CVn,CVn
+Vindemiatrix,63608,ε Vir,Vir
+Diadem,64241,α Com,Com
+Kulou,65109,ι Cen,Cen
+Mizar,65378,ζ UMa,UMa
+Matza,65426,,Cen
+Spica,65474,α Vir,Vir
+Alcor,65477,80 UMa,UMa
+Dofida,66047,,Cen
+Liesma,66192,,UMa
+Heze,66249,ζ Vir,Vir
+Alkaid,67301,η UMa,UMa
+Heng,67464,ν Cen,Cen
+Muphrid,67927,η Boo,Boo
+Leepwal,68002,ζ Cen,Cen
+Hadar,68702,β Cen,Cen
+Thuban,68756,α Dra,Dra
+Menkent,68933,θ Cen,Cen
+Kang,69427,κ Vir,Vir
+Arcturus,69673,α Boo,Boo
+Syrma,69701,ι Vir,Vir
+Xuange,69732,λ Boo,Boo
+Khambalia,69974,λ Vir,Vir
+Elgafar,70755,ϕ Vir,Vir
+Proxima Centauri,70890,α Cen,Cen
+Seginus,71075,γ Boo,Boo
+Toliman,71681,α Cen,Cen
+Rigil Kentaurus,71683,α Cen,Cen
+Uridim,71860,α Lup,Lup
+Xami,71908,α Cir,Cir
+Izar,72105,ε Boo,Boo
+Paradys,72370,α Aps,Aps
+Merga,72487,38 Boo,Boo
+Solitaire,72571,E Hya,Hya
+Kochab,72607,β UMi,UMi
+Zubenelgenubi,72622,α2 Lib,Lib
+Arcalís,72845,,Boo
+Baekdu,73136,8 UMi,UMi
+Nekkar,73555,β Boo,Boo
+Quadrans,73695,44 Boo A,Boo
+Brachium,73714,σ Lib,Lib
+Zubeneschamali,74785,β Lib,Lib
+Nikawiy,74961,,Boo
+Pherkad,75097,γ UMi,UMi
+Alkalurops,75411,μ Boo,Boo
+Edasich,75458,ι Dra,Dra
+Nusakan,75695,β CrB,CrB
+Alphecca,76267,α CrB,CrB
+Zubenelhakrabi,76333,γ Lib,Lib
+Karaka,76351,,Aps
+Unukalhai,77070,α Ser,Ser
+Zhou,77233,β Ser,Ser
+Gudja,77450,κ Ser,Ser
+Iklil,78104,ρ Sco,Sco
+Fang,78265,π Sco,Sco
+Dschubba,78401,δ Sco,Sco
+Acrab,78820,β1 Sco,Sco
+Marsic,79043,κ Her,Her
+Kamuy,79219,,CrB
+Jabbah,79374,ν Sco,Sco
+Sharjah,79431,,Sco
+Yed Prior,79593,δ Oph,Oph
+Yed Posterior,79882,ε Oph,Oph
+Hunor,80076,,Her
+Alniyat,80112,σ Sco,Sco
+Athebyne,80331,η Dra,Dra
+Cujam,80463,ω Her,Her
+Timir,80687,,Oph
+Antares,80763,α Sco,Sco
+Kornephoros,80816,β Her,Her
+Ogma,80838,,Her
+Marfik,80883,λ Oph,Oph
+Paikauhale,81266,τ Sco,Sco
+Atria,82273,α TrA,TrA
+Larawag,82396,ε Sco,Sco
+Xamidimura,82514,μ1 Sco,Sco
+Pipirima,82545,μ2 Sco,Sco
+Mahsati,82651,,Oph
+Rapeto,83547,,Sco
+Alrakis,83608,μ Dra,Dra
+Aldhibah,83895,ζ Dra,Dra
+Sabik,84012,η Oph,Oph
+Rasalgethi,84345,α1 Her,Her
+Sarin,84379,δ Her,Her
+Guniibuu,84405,36 Oph,Oph
+Inquill,84787,,Ara
+Rastaban,85670,β Dra,Dra
+Maasym,85693,λ Her,Her
+Lesath,85696,υ Sco,Sco
+Yildun,85822,δ UMi,UMi
+Shaula,85927,λ Sco,Sco
+Rasalhague,86032,α Oph,Oph
+Sargas,86228,θ Sco,Sco
+Dziban,86614,ψ1 Dra,Dra
+Cebalrai,86742,β Oph,Oph
+Alruba,86782,,Dra
+Cervantes,86796,μ Ara,Ara
+Fuyue,87261,G Sco,Sco
+Grumium,87585,ξ Dra,Dra
+Eltanin,87833,γ Dra,Dra
+Barnard's Star,87937,V2500 Oph,Oph
+Bodu,88267,95 Her,Her
+Pincoya,88414,,Sgr
+Alnasl,88635,γ2 Sgr,Sgr
+Ramus,88886,102 Her,Her
+Polis,89341,μ Sgr,Sgr
+Kaus Media,89931,δ Sgr,Sgr
+Alasia,90004,,Ser
+Tusizuo,90139,109 Her,Her
+Kaus Australis,90185,ε Sgr,Sgr
+Fafnir,90344,42 Dra,Dra
+Kaus Borealis,90496,λ Sgr,Sgr
+Vega,91262,α Lyr,Lyr
+Xihe,91852,,Lyr
+Sheliak,92420,β Lyr,Lyr
+Ainalrami,92761,ν1 Sgr,Sgr
+Nunki,92855,σ Sgr,Sgr
+Kaveh,92895,,Ser
+Alya,92946,θ1 Ser,Ser
+Sulafat,93194,γ Lyr,Lyr
+Ascella,93506,ζ Sgr,Sgr
+Okab,93747,ζ Aql,Aql
+Meridiana,94114,α CrA,CrA
+Albaldah,94141,π Sgr,Sgr
+Altais,94376,δ Dra,Dra
+Aladfar,94481,η Lyr,Lyr
+Gumala,94645,V5652 Sgr,Sgr
+Belel,95124,,Sgr
+Arkab Prior,95241,β1 Sgr,Sgr
+Sika,95262,,Sgr
+Arkab Posterior,95294,β2 Sgr,Sgr
+Rukbat,95347,α Sgr,Sgr
+Anser,95771,α Vul,Vul
+Albireo,95947,β Cyg,Cyg
+Uruk,96078,,Sge
+Alsafi,96100,σ Dra,Dra
+Sham,96757,α Sge,Sge
+Fawaris,97165,δ Cyg,Cyg
+Tarazed,97278,γ Aql,Aql
+Altair,97649,α Aql,Aql
+Libertas,97938,ξ Aql,Aql
+Alshain,98036,β Aql,Aql
+Terebellum,98066,ω Sgr,Sgr
+Tianfu,98823,τ Aql,Aql
+Antinous,99473,θ Aql,Aql
+Phoenicia,99711,V1703 Aql,Aql
+Chechia,99894,,Aql
+Algedi,100064,α2 Cap,Cap
+Alshat,100310,ν Cap,Cap
+Dabih,100345,β1 Cap,Cap
+Sadr,100453,γ Cyg,Cyg
+Peacock,100751,α Pav,Pav
+Aldulfin,101421,ε Del,Del
+Rotanev,101769,β Del,Del
+Sualocin,101958,α Del,Del
+Deneb,102098,α Cyg,Cyg
+Aljanah,102488,ε Cyg,Cyg
+Albali,102618,ε Aqr,Aqr
+Musica,103527,18 Del,Del
+Polaris Australis,104382,σ Oct,Oct
+Solaris,104780,,Peg
+Kitalpha,104987,α Equ,Equ
+Alderamin,105199,α Cep,Cep
+Alfirk,106032,β Cep,Cep
+Sadalsuud,106278,β Aqr,Aqr
+Bunda,106786,ξ Aqr,Aqr
+Nashira,106985,γ Cap,Cap
+Azelfafage,107136,π1 Cyg,Cyg
+Bosona,107251,,Aqr
+Garnet Star,107259,µ Cep,Cep
+Enif,107315,ε Peg,Peg
+Deneb Algedi,107556,δ Cap,Cap
+Aldhanab,108085,γ Gru,Gru
+Itonda,108375,,Gru
+Kurhah,108917,ξ Cep,Cep
+Sadalmelik,109074,α Aqr,Aqr
+Alnair,109268,α Gru,Gru
+Biham,109427,θ Peg,Peg
+Ancha,110003,θ Aqr,Aqr
+Lang-Exster,110130,α Tuc,Tuc
+Sadachbia,110395,γ Aqr,Aqr
+Lionrock,110813,,Aqr
+Stellio,111169,α Lac,Lac
+Situla,111710,κ Aqr,Aqr
+Homam,112029,ζ Peg,Peg
+Tiaki,112122,β Gru,Gru
+Matar,112158,η Peg,Peg
+Sadalbari,112748,μ Peg,Peg
+Skat,113136,δ Aqr,Aqr
+Tengshe,113288,,Lac
+Helvetios,113357,51 Peg,Peg
+Fomalhaut,113368,α PsA,PsA
+Alfarasalkamil,113726,ο And,And
+Scheat,113881,β Peg,Peg
+Fumalsamakah,113889,β Psc,Psc
+Markab,113963,α Peg,Peg
+Ebla,114322,,Psc
+Safina,114341,88 Aqr,Aqr
+Honores,114570,7 And,And
+Danfeng,115211,,Tuc
+Salm,115250,τ Peg,Peg
+Alkarab,115623,υ Peg,Peg
+Veritate,116076,14 And,And
+Poerava,116084,,Tuc
+Udkadua,116584,λ And,And
+Rasalnaqa,116631,ι And,And
+Errai,116727,γ Cep,Cep
+Kaffalmusalsala,116805,κ And,And
