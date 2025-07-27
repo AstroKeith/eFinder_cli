@@ -101,8 +101,8 @@ echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
 
 echo "dtoverlay=dwc2,dr_mode=peripheral" | sudo tee -a /boot/firmware/config.txt > /dev/null
-sudo sed -i '1s/^/modules-load=dwc2,g_serial /' /boot/firmware/cmdline.txt
-#sudo python /home/efinder/Solver/cmdlineUpdater.py
+#sudo sed -i '1s/^/modules-load=dwc2,g_serial /' /boot/firmware/cmdline.txt
+sudo python /home/efinder/Solver/cmdlineUpdater.py
 
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
 sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
