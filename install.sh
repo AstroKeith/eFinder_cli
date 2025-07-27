@@ -101,8 +101,8 @@ echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
 
 echo "dtoverlay=dwc2,dr_mode=peripheral" | sudo tee -a /boot/firmware/config.txt > /dev/null
-#sudo sed -i '1s/^/modules-load=dwc2,g_serial /' /boot/firmware/cmdline.txt
-sudo python /home/efinder/Solver/cmdlineUpdater.py
+sudo sed -i '1s/^/modules-load=dwc2,g_serial /' /boot/firmware/cmdline.txt
+#sudo python /home/efinder/Solver/cmdlineUpdater.py
 
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
 sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
@@ -111,8 +111,8 @@ echo 'vm.swappiness = 0' | sudo tee -a /etc/sysctl.conf > /dev/null
 sudo raspi-config nonint do_boot_behaviour B2
 sudo raspi-config nonint do_ssh 0
 sudo raspi-config nonint do_i2c 0
-sudo raspi-config nonint do_serial_cons 1
-sudo raspi-config nonint do_serial_hw 1
+#sudo raspi-config nonint do_serial_cons 1
+#sudo raspi-config nonint do_serial_hw 1
 
 sudo reboot now
 
