@@ -46,10 +46,12 @@ echo "Installing required packages"
 echo "*****************************************************************************"
 mkdir /home/efinder/Solver
 mkdir /home/efinder/Solver/images
-mkdir /home/efinder/Solver/data
+#mkdir /home/efinder/Solver/data
+mkdir /home/efinder/uploads
+sudo chmod a+rwx /home/efinder/uploads
 
 cp /home/efinder/eFinder_cli/Solver/*.* /home/efinder/Solver
-cp /home/efinder/eFinder_cli/Solver/starnames.csv /home/efinder/Solver/data
+#cp /home/efinder/eFinder_cli/Solver/starnames.csv /home/efinder/Solver/data
 
 cd $HOME
 echo " "
@@ -90,9 +92,13 @@ sudo apt-get install -y php8.2
 sudo chmod a+rwx /home/efinder
 sudo chmod a+rwx /home/efinder/Solver/images
 sudo cp eFinder_cli/Solver/index.php /var/www/html
+sudo cp /home/efinder/eFinder_cli/Solver/upload.php /var/www/html
+sudo cp /home/efinder/eFinder_cli/Solver/updater.html /var/www/html
+sudo cp /home/efinder/eFinder_cli/Solver/user.ini /etc/php/8.2/apache2/conf.d
+sudo cp /home/efinder/eFinder_cli/Solver/user.ini /etc/php/8.2/cli/conf.d
+
 sudo mv /var/www/html/index.html /var/www/html/apacheindex.html
 sudo chmod -R 755 /var/www/html
-
 
 cd $HOME
 echo " "
@@ -110,8 +116,6 @@ echo 'vm.swappiness = 0' | sudo tee -a /etc/sysctl.conf > /dev/null
 sudo raspi-config nonint do_boot_behaviour B2
 sudo raspi-config nonint do_ssh 0
 sudo raspi-config nonint do_i2c 0
-#sudo raspi-config nonint do_serial_cons 1
-#sudo raspi-config nonint do_serial_hw 1
 
 sudo reboot now
 
