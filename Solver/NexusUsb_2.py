@@ -53,6 +53,12 @@ class Nexus:
         return res
 
     def scan(self):
-        if self.ser.in_waiting > 0:
-            a = str(self.ser.read(self.ser.in_waiting).decode("ascii"))
-            return a
+        try:
+            if self.ser.in_waiting > 0:
+                a = str(self.ser.read(self.ser.in_waiting).decode("ascii"))
+                return a
+        except:
+            self.ser = serial.Serial('/dev/ttyGS0',baudrate=115200)
+            if self.ser.is_open:
+                txt = ':ID=eFinderLite#'
+                self.ser.write(bytes(txt.encode("ascii")))
