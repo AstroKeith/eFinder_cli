@@ -33,7 +33,7 @@ if os.path.exists("Solver/eFinder.config") == True:
             print (line)
             param[line[0]] = str(line[1])
 
-version = "4.1"
+version = "4.2"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
