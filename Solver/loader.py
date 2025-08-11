@@ -18,4 +18,4 @@ if os.path.isfile(filename):
         os.system('sudo reboot now')
 else:
     print('no zip file found')
-    subprocess.Popen(["/home/efinder/venv-efinder/bin/python","/home/efinder/Solver/eFinder_cli.py"])
+    subprocess.Popen(["/home/efinder/venv-efinder/bin/python","/home/efinder/Solver/eFinder.py"])
