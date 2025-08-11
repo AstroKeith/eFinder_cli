@@ -38,26 +38,24 @@ sudo -u efinder git clone https://github.com/AstroKeith/eFinder_cli.git
 echo " "
 
 cd $HOME
-
-echo "tmpfs /var/tmp tmpfs nodev,nosuid,size=10M 0 0" | sudo tee -a /etc/fstab > /dev/null
 echo " "
 echo "*****************************************************************************"
-echo "Installing required packages"
+echo "Unpacking eFinder_cli & configuring"
 echo "*****************************************************************************"
+echo "tmpfs /var/tmp tmpfs nodev,nosuid,size=10M 0 0" | sudo tee -a /etc/fstab > /dev/null
 mkdir /home/efinder/Solver
 mkdir /home/efinder/Solver/images
-#mkdir /home/efinder/Solver/data
 mkdir /home/efinder/uploads
 sudo chmod a+rwx /home/efinder/uploads
 
 cp /home/efinder/eFinder_cli/Solver/*.* /home/efinder/Solver
-#cp /home/efinder/eFinder_cli/Solver/starnames.csv /home/efinder/Solver/data
+echo "tmpfs /home/efinder/Solver/images tmpfs nodev,nosuid,size=10M 0 0" | sudo tee -a /etc/fstab > /dev/null
 
 cd $HOME
 echo " "
 echo "*****************************************************************************"
 echo "Installing Samba file share support"
-
+echo "*****************************************************************************"
 sudo apt install -y samba samba-common-bin
 sudo tee -a /etc/samba/smb.conf > /dev/null <<EOT
 [efindershare]
@@ -75,7 +73,7 @@ sudo systemctl restart smbd
 cd $HOME
 echo " "
 echo "*****************************************************************************"
-echo "installing Tetra and its databases"
+echo "installing Tetra3 and its databases"
 echo "*****************************************************************************"
 sudo -u efinder git clone https://github.com/esa/tetra3.git
 cd tetra3
@@ -96,9 +94,16 @@ sudo cp /home/efinder/eFinder_cli/Solver/upload.php /var/www/html
 sudo cp /home/efinder/eFinder_cli/Solver/updater.html /var/www/html
 sudo cp /home/efinder/eFinder_cli/Solver/user.ini /etc/php/8.2/apache2/conf.d
 sudo cp /home/efinder/eFinder_cli/Solver/user.ini /etc/php/8.2/cli/conf.d
-
 sudo mv /var/www/html/index.html /var/www/html/apacheindex.html
 sudo chmod -R 755 /var/www/html
+
+cd $HOME
+echo " "
+echo "*****************************************************************************"
+echo "Setting up wifi"
+echo "*****************************************************************************"
+sudo python /home/efinder/Solver/setssid.py
+sudo cp /home/efinder/Solver/default_hotspot.txt /boot/overlays
 
 cd $HOME
 echo " "
