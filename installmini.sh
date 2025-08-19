@@ -6,7 +6,7 @@ echo "**************************************************************************
 echo "Updating Pi OS & packages"
 echo "*****************************************************************************"
 sudo apt update
-sudo apt upgrade -y
+#sudo apt upgrade -y
 echo " "
 echo "*****************************************************************************"
 echo "Installing additional Debian and Python packages"
@@ -103,7 +103,7 @@ echo "**************************************************************************
 echo "Setting up wifi"
 echo "*****************************************************************************"
 sudo python /home/efinder/Solver/setssid.py
-sudo cp /home/efinder/Solver/default_hotspot.txt /boot/overlays
+sudo cp /home/efinder/Solver/default_hotspot.txt /boot/overlays/hotspot.txt
 
 cd $HOME
 echo " "
