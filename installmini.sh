@@ -114,6 +114,7 @@ echo "**************************************************************************
 echo "dtoverlay=dwc2,dr_mode=peripheral" | sudo tee -a /boot/firmware/config.txt > /dev/null
 sudo python /home/efinder/Solver/cmdlineUpdater.py
 
+cp /home/efinder/Solver/eFinder_mini.py /home/efinder/Solver/eFinder.py
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
 sudo cp /home/efinder/eFinder_cli/Solver/my_cron /etc/cron.d
 
