@@ -112,6 +112,7 @@ echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
 
 echo "dtoverlay=dwc2,dr_mode=peripheral" | sudo tee -a /boot/firmware/config.txt > /dev/null
+echo "enable_uart=1" | sudo tee -a /boot/firmware/config.txt > /dev/null
 sudo python /home/efinder/Solver/cmdlineUpdater.py
 
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
