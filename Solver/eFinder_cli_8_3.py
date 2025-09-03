@@ -520,7 +520,7 @@ cmd = {
     "SX" : "nexus.write(':SX'+setExp(msg.strip('#')[3:])+'#')",
     "GX" : "nexus.write(':GX'+getAutoExp()+'#')",
     "GA" : "nexus.write(':GA'+getScopeAlt()+'#')",
-    "SB" : "nexus.write('SB'+setLED(float(msg[3:5]))+'#')",
+    "SB" : "nexus.write(':SB'+setLED(float(msg[3:].strip('#')))+'#')",
     "SW" : "nexus.write(':SW'+setWifi(msg.strip('#')[3:])+'#')",
     "SH" : "nexus.write(':SH'+configHotspotWifi(msg.strip('#')[3:])+'#')",
     "SI" : "nexus.write(':SI'+configInfraWifi(msg.strip('#')[3:])+'#')",

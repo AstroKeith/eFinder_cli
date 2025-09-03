@@ -14,6 +14,23 @@
 import os
 import sys
 import math
+import RPi.GPIO as GPIO
+import subprocess
+from rpi_hardware_pwm import HardwarePWM
+
+GPIO.cleanup()
+switch = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)    
+GPIO.setup(switch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+pwm = HardwarePWM(pwm_channel=0, hz=1, chip=0)
+pwm.start(50) # pulse LED while loading all the code.
+
+if GPIO.input(switch) == False: # need to restart as Mini
+    print ('Restarting as eFinder Mini')
+    subprocess.Popen(["venv-efinder/bin/python","Solver/eFinder_mini.py"])
+    sys.exit(0)
 
 global radec
 
@@ -29,7 +46,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "7.3"
+version = "8.3"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -39,10 +56,11 @@ from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageOps
 import numpy as np
 import NexusUsb_2
 import RPICamera_Nexus_4
+import servocat_usb
 import tetra3
 import csv
 from io import BytesIO
-import subprocess
+
 
 try:
     import board
@@ -457,12 +475,19 @@ def configHotspotWifi(msg):
     hotspot = True
     return '1'
 
-    
+def setLED(b):
+    global pwm, param
+    pwm.change_duty_cycle(int(b))
+    param["LED"] = int(b)
+    save_param()
+    return ('1')
+
 # main code starts here
 
 nexus = NexusUsb_2.Nexus()
 camera = RPICamera_Nexus_4.RPICamera()
 camera.set(float(param["Exposure"]),param["Gain"])
+servocat = servocat_usb.ServoCat()
 
 cam = (960,760,50.8,13.5)   
 t3 = tetra3.Tetra3('t3_fov14_mag8')
@@ -495,6 +520,7 @@ cmd = {
     "SX" : "nexus.write(':SX'+setExp(msg.strip('#')[3:])+'#')",
     "GX" : "nexus.write(':GX'+getAutoExp()+'#')",
     "GA" : "nexus.write(':GA'+getScopeAlt()+'#')",
+    "SB" : "nexus.write(':SB'+setLED(float(msg[3:].strip('#')))+'#')",
     "SW" : "nexus.write(':SW'+setWifi(msg.strip('#')[3:])+'#')",
     "SH" : "nexus.write(':SH'+configHotspotWifi(msg.strip('#')[3:])+'#')",
     "SI" : "nexus.write(':SI'+configInfraWifi(msg.strip('#')[3:])+'#')",
@@ -502,15 +528,25 @@ cmd = {
     "IS" : "nexus.write(':IS'+ctlSaveImage(msg.strip('#')[3:])+'#')"
 }
 
+pwm.change_frequency(100)
+pwm.change_duty_cycle(int(float(param["LED"])))
+
 nexus.write(':ID=eFinderLite#')
 
 while True:
     msg = nexus.scan()
     if msg != None:
-        print ('received',msg)
-        try:
-            exec(cmd[msg[1:3]])
-        except Exception as error:
-            nexus.write(':EF'+str(error)+'#')
-            print ('Error',error) 
+        print ('received from Nexus',msg)
+        if msg[1:3] == 'SC':
+            servocat.write(msg[3:].strip('#'))
+        else:
+            try:
+                exec(cmd[msg[1:3]])
+            except Exception as error:
+                nexus.write(':EF'+str(error)+'#')
+                print ('Error',error) 
+    sct = servocat.scan()
+    if sct != None:
+        print ('received from ServoCat',msg)
+        nexus.write(':SC'+sct+'#')
     time.sleep(0.05) 
