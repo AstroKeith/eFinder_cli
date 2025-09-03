@@ -28,6 +28,7 @@ echo " "
 python -m venv /home/efinder/venv-efinder --system-site-packages
 venv-efinder/bin/python venv-efinder/bin/pip install adafruit-circuitpython-adxl34x
 venv-efinder/bin/python venv-efinder/bin/pip install gdown
+sudo venv-efinder/bin/python venv-efinder/bin/pip install rpi-hardware-pwm
 
 cd $HOME
 echo " "
@@ -111,8 +112,12 @@ echo "**************************************************************************
 echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
 
-echo "dtoverlay=dwc2,dr_mode=peripheral" | sudo tee -a /boot/firmware/config.txt > /dev/null
-echo "enable_uart=1" | sudo tee -a /boot/firmware/config.txt > /dev/null
+sudo tee -a /boot/firmware/config.txt > /dev/null <<EOT
+dtoverlay=dwc2,dr_mode=peripheral
+enable_uart=1
+dtoverlay=pwm-2chan
+EOT
+
 sudo python /home/efinder/Solver/cmdlineUpdater.py
 
 sudo chmod a+rwx eFinder_cli/Solver/my_cron
