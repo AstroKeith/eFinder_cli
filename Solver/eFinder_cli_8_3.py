@@ -14,12 +14,23 @@
 import os
 import sys
 import math
-import socket
-from threading import Thread
+import RPi.GPIO as GPIO
+import subprocess
 from rpi_hardware_pwm import HardwarePWM
 
-pwm = HardwarePWM(pwm_channel=0, hz=2, chip=0)
+GPIO.cleanup()
+switch = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)    
+GPIO.setup(switch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+pwm = HardwarePWM(pwm_channel=0, hz=1, chip=0)
 pwm.start(50) # pulse LED while loading all the code.
+
+if GPIO.input(switch) == False: # need to restart as Mini
+    print ('Restarting as eFinder Mini')
+    subprocess.Popen(["venv-efinder/bin/python","Solver/eFinder_mini.py"])
+    sys.exit(0)
 
 global radec
 
@@ -29,29 +40,27 @@ if len(sys.argv) > 1:
 from pathlib import Path
 home_path = str(Path.home())
 param = dict()
-if os.path.exists("Solver/eFinder.config") == True:
-    print('file exists')
-    with open("Solver/eFinder.config") as h:
+if os.path.exists(home_path + "/Solver/eFinder.config") == True:
+    with open(home_path + "/Solver/eFinder.config") as h:
         for line in h:
             line = line.strip("\n").split(":")
-            print (line)
             param[line[0]] = str(line[1])
 
-version = "5.1"
+version = "8.3"
 radec = ('%6.4f %+6.4f' % (0,0))
 
-print ('eFinder Mini','Version '+ version)
+print ('Nexus eFinder','Version '+ version)
 print ('Loading program')
 import time
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageOps
 import numpy as np
 import NexusUsb_2
-import RPICamera_Nexus_3
-import Coordinates_wifi_2
+import RPICamera_Nexus_4
+import servocat_usb
 import tetra3
 import csv
 from io import BytesIO
-import subprocess
+
 
 try:
     import board
@@ -71,117 +80,18 @@ offset_str = "0,0"
 solve = False
 testMode = False
 stars = peak = '0'
+patch = np.zeros((32,32),dtype=np.uint8)
+psfArray = np.zeros((32,32),dtype=np.uint8)
 capArray = np.zeros((760,960),dtype=np.uint8)
+auto = False
 hotspot = False
-keep = False
-solved_radec = 0,0
+hotspotSet = False
+infraSet = False
 fnt = ImageFont.truetype("/home/efinder/Solver/text.ttf",16)
 frame = 0
+keep = False
+hemi = 'N'
 
-def serveWifi(): # serve WiFi port
-    global solved_radec, addr, param, keep, frame
-    print ('starting wifi server')
-    host = ''
-    port = 4060
-    backlog = 50
-    size = 1024
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((host,port))
-    s.listen(backlog)
-    #hostname = socket.gethostname()
-    #addr = socket.gethostbyname(hostname + '.local')
-    raStr = decStr = ""
-    timeOffset = '0'
-    timeStr = '23:00:00'
-    try:
-        while True:
-            client, address = s.accept()
-            while True:
-                data = client.recv(size)
-                if not data:
-                    break
-                if data:
-                    pkt = data.decode("utf-8","ignore")
-                    time.sleep(0.02)
-                    a = pkt.split('#')
-                    print(a)
-                    raPacket = coordinates.hh2dms(solved_radec[0]/15)+'#'
-                    decPacket = coordinates.dd2aligndms(solved_radec[1])+'#'
-                    for x in a:
-                        if x != '':
-                            #print (x)
-                            if x == ':GR':
-                                client.send(bytes(raPacket.encode('ascii')))
-                            elif x == ':GD':
-                                client.send(bytes(decPacket.encode('ascii')))
-                            elif x[1:3] == 'St':
-                                client.send(b'1')
-                                Lat = x[3:].split('*')
-                                Lat = int(Lat[0]) + int(Lat[1])/60 # Latitude as decimal degrees North +Ve
-                            elif x[1:3] == 'Sg':
-                                client.send(b'1')
-                                Long = x[3:].split('*')
-                                Long = int(Long[0]) + int(Long[1])/60 # Longitude as decimal degrees West +ve
-                            elif x[1:3] == 'SG':
-                                client.send(b'1')
-                                timeOffset = x[3:]
-                            elif x[1:3] == 'SL':
-                                client.send(b'1')
-                                timeStr = x[3:]
-                            elif x[1:3] == 'SC':
-                                client.send(b'Updating Planetary Data#                              #')
-                                print('dateSet',timeOffset,timeStr,x[3:])
-                                coordinates.dateSet(timeOffset,timeStr,x[3:])
-                            elif x[1:3] == 'RG': # set minimum exp/gain
-                                selectExp(0.1,10)
-                            elif x[1:3] == 'RC': # set med exp/gain
-                                selectExp(0.1,20)
-                            elif x[1:3] == 'RM': # set high exp/gain
-                                selectExp(0.2,20)
-                            elif x[1:3] == 'RS': # set very high exp/gain
-                                selectExp(0.5,30)
-                            elif x[1:3] == 'Sr': # target RA
-                                raStr = x[3:]
-                                client.send(b'1')
-                            elif x[1:3] == 'Sd': # target Dec
-                                decStr = x[3:]
-                                client.send(b'1')  
-                            elif x[1:3] == 'MS': # 'goto' aka start saving images
-                                client.send(b'0')
-                            elif x[1:3] == 'Ms':
-                                adjExp(-1)
-                            elif x[1:3] == 'Mn':
-                                adjExp(1)
-                            elif x[1:3] == 'Mw':
-                                keep = False
-                                frame = 0
-                            elif x[1:3] == 'Me':
-                                print('Started saving images')
-                                keep = True
-                            elif x[1:3] == 'CM': # do offset
-                                client.send(b'0')
-                                measure_offset()
-                                ra = raStr.split(':')
-                                targetRa = int(ra[0])+int(ra[1])/60+int(ra[2])/3600
-                                dec = decStr.split('*')
-                                decdec = dec[1].split(':')
-                                targetDec = int(dec[0]) + math.copysign((int(decdec[0])/60+int(decdec[1])/3600),float(dec[0]))
-                                print('Align target received:',targetRa, targetDec) # decimal hours and degrees
-                            elif x[-1] == 'Q':
-                                print('Stop saving images')
-                                keep = False
-                                frame = 0
-    except:
-        pass
-
-
-def selectExp(e,g):
-    camera.set(e,g)
-    param['Exposure'] = str(e)
-    param['Gain'] = str(g)
-    save_param()
-    
 
 def pixel2dxdy(pix_x, pix_y):  # converts a pixel position, into a delta angular offset from the image centre
     deg_x = (float(pix_x) - cam[0]/2) * cam[2] / 3600  # in degrees
@@ -197,20 +107,20 @@ def capture():
     global capArray
     if testMode == True:
         if offset_flag == False:
-            m13 = True
-            polaris_cap = False
+            test = True
+            offset = False
         else:
-            m13 = True
-            polaris_cap = False #True
+            test = False
+            offset = True
     else:
-        m13 = False
-        polaris_cap = False
-    capArray = camera.capture(m13,polaris_cap)
+        test = False
+        offset = False
+    capArray = camera.capture(test,offset,hemi)
     return capArray
 
 
 def solveImage(img):
-    global offset_flag, solve, eTime, firstStar, solution, cam, stars, peak, radec, solved_radec
+    global offset_flag, solve, eTime, firstStar, solution, cam, stars, peak, radec
     start_time = time.time()
     print ("Started solving")
 
@@ -219,7 +129,7 @@ def solveImage(img):
         np_image,
         downsample=1,
         )   
-    print ('centroids',len(centroids),'   peak',np.max(np_image))
+    print ('centroids',len(centroids), '  peak',np.max(np_image))
     if len(centroids) < 15:
         print ("Bad image","only "+ str(len(centroids))," centroids")
         solve = False
@@ -240,7 +150,7 @@ def solveImage(img):
     elapsed_time = time.time() - start_time
     eTime = ('%2.2f' % (elapsed_time)).zfill(5)
     if solution['RA'] == None:
-        print ("Not Solved",stars + " stars")
+        print ("Not Solved",stars + " centroids", "")
         if keep:
             txt = "Not Solved - " + stars + " stars" + "    Exp = "+str(param['Exposure'])+ 's.   Gain = ' + str(param["Gain"])
             saveImage(img,txt)
@@ -249,44 +159,13 @@ def solveImage(img):
     firstStar = centroids[0]
     ra = solution['RA_target']
     dec = solution['Dec_target']
-    print ('J2000',coordinates.hh2dms(ra/15),coordinates.dd2aligndms(dec))
-    ra,dec = coordinates.precess(ra,dec)
-    if keep:
-        txt = "Peak = "+ str(np.max(np_image)) + "   Stars = "+ str(int(centroids.size)) + "    Exp = "+str(param['Exposure'])+ 's.   Gain = ' + str(param["Gain"])
-        saveImage(img,txt)
     radec = ('%6.4f %+6.4f' % (ra,dec))
-    solved_radec = ra,dec
-    print ('JNow',coordinates.hh2dms(solved_radec[0]/15),coordinates.dd2aligndms(solved_radec[1]))
+    print ('RA,Dec',radec)
+    if keep:
+        txt = "Peak = "+ str(np.max(np_image)) + "   Stars = "+ str(int(centroids.size/2)) + "    Exp = "+str(param['Exposure'])+ 's.   Gain = ' + str(param["Gain"])
+        saveImage(img,txt)
     solve = True
-
-def saveImage(array,txt):
-    global frame, keep
-    frame +=1
-    start = time.time()
-    img = Image.fromarray(array)
-    img2 = ImageEnhance.Contrast(img).enhance(5)
-    img2 = img2.rotate(angle=180)
-    img3 = ImageDraw.Draw(img2)
-    txt = txt + "      Frame " + str(frame)
-    print(txt)
-    img3.text((70,5), txt, font = fnt, fill='white')
-    img2 = ImageOps.expand(img2,border=5,fill='red')
-    img2 = img2.save('/home/efinder/Solver/images/capture.jpg')
-    print ('save %5.3f secs' % (time.time()-start))
-    if frame > 100:
-        keep = False
-        frame = 0
-
-def loop_solve():
-    while True:
-        if offset_flag == False:
-            #start = time.time()
-            im = capture()
-            #print ('capture time %5.3f secs' % (time.time() - start))
-            solveImage(im)
-            #print ('cycle time %5.3f secs' % (time.time() - start))
-            print('****************')
-
+    
 def measure_offset():
     global offset_str, offset_flag, offset, param
     offset_flag = True
@@ -330,13 +209,42 @@ def measure_offset():
     offset_flag = False
     return(name+secondname+',HIP'+hipId+','+offset_str)
 
+def saveImage(array,txt):
+    global frame, keep
+    frame +=1
+    #start = time.time()
+    img = Image.fromarray(array)
+    img2 = ImageEnhance.Contrast(img).enhance(5)
+    img2 = img2.rotate(angle=180)
+    img3 = ImageDraw.Draw(img2)
+    txt = txt + "      Frame " + str(frame)
+    #print(txt)
+    img3.text((70,5), txt, font = fnt, fill='white')
+    img2 = ImageOps.expand(img2,border=5,fill='red')
+    img2 = img2.save('/home/efinder/Solver/images/capture.jpg')
+    #print ('save %5.3f secs' % (time.time()-start))
+    if frame > 99:
+        keep = False
+        frame = 0
+        nexus.write(':IS0#')
+
+def ctlSaveImage(f):
+    global keep, frame
+    if f == '1':
+        keep = True
+        return '1'
+    else:
+        keep = False
+        frame = 0
+        return "0"
+
 def go_solve():
     solveImage(capture())
     if solve == True:
-        print ("Solved")
+        print ("Solved", "", "")
         return('1')
     else:
-        print ("Not Solved")
+        print ("Not Solved", "", "")
         return('0')
 
 def reset_offset():
@@ -346,12 +254,14 @@ def reset_offset():
     offset = (cam[1]/2, cam[0]/2) # default centre of the image
     offset_str = ('%1.3f,%1.3f' % (float(param["d_x"])/60, float(param["d_y"])/60))
     save_param()
-    return('1') 
+    return('1')
+  
 
 def save_param():
     with open(home_path + "/Solver/eFinder.config", "w") as h:
         for key, value in param.items():
             h.write("%s:%s\n" % (key, value))
+
 
 def adjExp(i): #manual
     global param
@@ -375,6 +285,63 @@ def adjGain(i): #manual
     save_param()
     return str(gain)
 
+def doFocus(x):
+    global solve, patch, psfArray, peak, stars
+    imgf = capture()
+    np_image = np.asarray(imgf, dtype=np.uint8)
+    img2 = Image.fromarray(np_image)
+    img2 = ImageEnhance.Contrast(img2).enhance(5)
+    img2 = ImageOps.expand(img2,border=5,fill='red')
+    img2 = img2.save('/home/efinder/Solver/images/capture.jpg')
+    centroids = tetra3.get_centroids_from_image(
+        np_image,
+        downsample=1,
+        )
+    if centroids.size < 1: 
+        print ('No stars found','','')
+        solve = False
+        if x == 1:
+            return('0')
+        return
+    stars = str(len(centroids))
+    peak = ('%3d' % (np.max(np_image)))
+    solve = True
+    
+    w=16
+    x1=int(centroids[0][0]-w)
+    if x1 < 0:
+        x1 = 0
+    x2=int(centroids[0][0]+w)
+    if x2 > 760:
+        x2 = 760
+    y1=int(centroids[0][1]-w)
+    if y1 < 0:
+        y1 = 0
+    y2=int(centroids[0][1]+w)
+    if y2 > 960:
+        y2 = 960
+
+    patch = np_image[x1:x2,y1:y2] # 32x32 array of star
+    print('patch',patch)
+
+    img_supersample = Image.new("L",(32*8,32*8))
+    shape=[]
+    for h in range (x1,x2):
+        shape.append(((h-x1)*8,int((255-np_image[h][y1+w]))))
+    draw = ImageDraw.Draw(img_supersample)
+    draw.line(shape,fill="white",width=8,joint="curve")
+    shape=[]
+    for h in range (y1,y2):
+        shape.append(((h-y1)*8,int((255-np_image[x1+w][h]))))
+    draw = ImageDraw.Draw(img_supersample)
+    draw.line(shape,fill="white",width=8,joint="curve")
+
+    psfPlot = img_supersample.resize((32, 32), Image.Resampling.LANCZOS)
+    psfArray = np.asarray(psfPlot, dtype=np.uint8) # 32x32 PSF np.array
+    print('PSF',psfArray)
+    if x == 1:
+        return('1')
+
 def setExp(a):
     global param
     param["Exposure"] = float(a)
@@ -393,6 +360,7 @@ def getAutoExp():
             downsample=1,
             )
         print ('%4d %s   %3d %s ' % (len(centroids),"stars",pk,"peak signal"))
+
         if len(centroids) < 20:
             expAuto = expAuto * 2
             camera.set(expAuto,param["Gain"])
@@ -406,16 +374,22 @@ def getAutoExp():
     return (str(expAuto))
             
 
-def flipTestMode(mode):
-    global testMode
+def flipTestMode(mode,s):
+    global testMode, hemi
     testMode = mode
+    print('s',s)
+    if s == 'TS#' or s == 'TSN#':
+        hemi = 'N'
+        print('North')
+    elif s == 'TSS#':
+        hemi = 'S'
+        print('South')
     return('1')
 
 def array_to_bytes(x: np.ndarray) -> bytes:
     np_bytes = BytesIO()
     np.save(np_bytes, x, allow_pickle=True)
     return np_bytes.getvalue()[128:]
-
 
 def getScopeAlt():
     print('getting scope Alt')
@@ -496,37 +470,24 @@ def configHotspotWifi(msg):
     except:
         pass
     sid,pswd = msg.split(" ")
-    os.system("sudo nmcli dev wifi hotspot ssid '"+ sid +"' password '" + pswd + "'")
+    ssid = 'efinder'+sid
+    os.system("sudo nmcli dev wifi hotspot ssid '"+ ssid +"' password '" + pswd + "'")
     hotspot = True
     return '1'
 
-    
+def setLED(b):
+    global pwm, param
+    pwm.change_duty_cycle(int(b))
+    param["LED"] = int(b)
+    save_param()
+    return ('1')
+
 # main code starts here
-print ('Setting up wifi' )
-if os.path.isfile('/boot/overlays/hotspot.txt'):
-    ssid = pswd = ''
-    with open("/boot/overlays/hotspot.txt","r") as f:
-        for line in f:
-            line = line.strip('\n').split(':')
-            if line[0].lower() == 'ssid':
-                ssid = line[1]
-            elif line[0].lower() == 'password':
-                pswd = line[1]
-    if ssid == '' or pswd == '':
-        print ('no valid hotspot setup data found')
-    else:
-        print('Setting up Hotspot ssid:',ssid,'  pswd:',pswd)
-        configHotspotWifi(ssid+' '+pswd)
-    print('Done')
-else:
-    print('setting wifi to infrastructure mode')
-    setWifi('0')
-    print('done')
 
 nexus = NexusUsb_2.Nexus()
-camera = RPICamera_Nexus_3.RPICamera()
+camera = RPICamera_Nexus_4.RPICamera()
 camera.set(float(param["Exposure"]),param["Gain"])
-coordinates = Coordinates_wifi_2.Coordinates()
+servocat = servocat_usb.ServoCat()
 
 cam = (960,760,50.8,13.5)   
 t3 = tetra3.Tetra3('t3_fov14_mag8')
@@ -542,9 +503,12 @@ np_image = np.zeros((760,960),dtype=np.uint8)
 cmd = {
     "PS" : "nexus.write(':PS'+go_solve()+'#')",
     "OF" : "nexus.write(':OF'+measure_offset()+'#')",
+    "FS" : "nexus.write(':FS'+doFocus(1)+'#')",
+    "GP" : "nexus.writeBytes(':GP',array_to_bytes(psfArray))",
+    "GI" : "nexus.writeBytes(':GI',array_to_bytes(patch))",
     "GR" : "nexus.write(':GR'+radec+'#')",
-    "TS" : "nexus.write(':TS'+flipTestMode(True)+'#')",
-    "TO" : "nexus.write(':TO'+flipTestMode(False)+'#')",
+    "TS" : "nexus.write(':TS'+flipTestMode(True,msg[1:])+'#')",
+    "TO" : "nexus.write(':TO'+flipTestMode(False,' ')+'#')",
     "GV" : "nexus.write(':GV'+version+'#')",
     "GO" : "nexus.write(':GO'+offset_str+'#')",
     "SO" : "nexus.write(':SO'+reset_offset()+'#')",
@@ -556,31 +520,33 @@ cmd = {
     "SX" : "nexus.write(':SX'+setExp(msg.strip('#')[3:])+'#')",
     "GX" : "nexus.write(':GX'+getAutoExp()+'#')",
     "GA" : "nexus.write(':GA'+getScopeAlt()+'#')",
+    "SB" : "nexus.write('SB'+setLED(float(msg[3:5]))+'#')",
     "SW" : "nexus.write(':SW'+setWifi(msg.strip('#')[3:])+'#')",
     "SH" : "nexus.write(':SH'+configHotspotWifi(msg.strip('#')[3:])+'#')",
     "SI" : "nexus.write(':SI'+configInfraWifi(msg.strip('#')[3:])+'#')",
-    "SQ" : "nexus.write(':SQ'+wifiOnOff(msg.strip('#')[3:])+'#')"
+    "SQ" : "nexus.write(':SQ'+wifiOnOff(msg.strip('#')[3:])+'#')",
+    "IS" : "nexus.write(':IS'+ctlSaveImage(msg.strip('#')[3:])+'#')"
 }
 
 pwm.change_frequency(100)
 pwm.change_duty_cycle(int(float(param["LED"])))
 
-loop = True
-solveloop = Thread(target=loop_solve)
-solveloop.start()
-time.sleep(0.5)
-
-wifiloop = Thread(target=serveWifi)
-wifiloop.start()
-time.sleep(0.5)
+nexus.write(':ID=eFinderLite#')
 
 while True:
     msg = nexus.scan()
     if msg != None:
-        print ('received',msg)
-        try:
-            exec(cmd[msg[1:3]])
-        except Exception as error:
-            nexus.write(':EF'+str(error)+'#')
-            print ('Error',error) 
+        print ('received from Nexus',msg)
+        if msg[1:3] == 'SC':
+            servocat.write(msg[3:].strip('#'))
+        else:
+            try:
+                exec(cmd[msg[1:3]])
+            except Exception as error:
+                nexus.write(':EF'+str(error)+'#')
+                print ('Error',error) 
+    sct = servocat.scan()
+    if sct != None:
+        print ('received from ServoCat',msg)
+        nexus.write(':SC'+sct+'#')
     time.sleep(0.05) 
