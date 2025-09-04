@@ -28,7 +28,8 @@ echo " "
 python -m venv /home/efinder/venv-efinder --system-site-packages
 venv-efinder/bin/python venv-efinder/bin/pip install adafruit-circuitpython-adxl34x
 venv-efinder/bin/python venv-efinder/bin/pip install gdown
-sudo venv-efinder/bin/python venv-efinder/bin/pip install rpi-hardware-pwm
+venv-efinder/bin/python venv-efinder/bin/pip install rpi-hardware-pwm
+sudo chmod a+rwx -R /sys/class/pwm
 
 cd $HOME
 echo " "
