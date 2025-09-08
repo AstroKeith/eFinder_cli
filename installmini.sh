@@ -1,12 +1,12 @@
 #!/bin/sh
 
-echo "eFinder cli install"
+echo "eFinder mini install"
 echo " "
 echo "*****************************************************************************"
 echo "Updating Pi OS & packages"
 echo "*****************************************************************************"
 sudo apt update
-#sudo apt upgrade -y
+sudo apt upgrade -y
 echo " "
 echo "*****************************************************************************"
 echo "Installing additional Debian and Python packages"
@@ -28,6 +28,8 @@ echo " "
 python -m venv /home/efinder/venv-efinder --system-site-packages
 venv-efinder/bin/python venv-efinder/bin/pip install adafruit-circuitpython-adxl34x
 venv-efinder/bin/python venv-efinder/bin/pip install gdown
+venv-efinder/bin/python venv-efinder/bin/pip install rpi-hardware-pwm
+sudo chmod a+rwx -R /sys/class/pwm
 
 cd $HOME
 echo " "
@@ -111,7 +113,12 @@ echo "**************************************************************************
 echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
 
-echo "dtoverlay=dwc2,dr_mode=peripheral" | sudo tee -a /boot/firmware/config.txt > /dev/null
+sudo tee -a /boot/firmware/config.txt > /dev/null <<EOT
+dtoverlay=dwc2,dr_mode=peripheral
+enable_uart=1
+dtoverlay=pwm-2chan
+EOT
+
 sudo python /home/efinder/Solver/cmdlineUpdater.py
 
 cp /home/efinder/Solver/eFinder_mini.py /home/efinder/Solver/eFinder.py
