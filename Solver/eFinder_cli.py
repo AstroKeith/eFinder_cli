@@ -13,21 +13,23 @@
 
 import os
 import sys
+
+os.system('sudo pigpiod')
+
 import math
 import RPi.GPIO as GPIO
 import subprocess
-from rpi_hardware_pwm import HardwarePWM
+import pigpio
 
-GPIO.cleanup()
-switch = 17
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)    
-GPIO.setup(switch, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-pwm = HardwarePWM(pwm_channel=0, hz=1, chip=0)
-pwm.start(50) # pulse LED while loading all the code.
+switch = pigpio.pi()
+switch.set_mode(18, pigpio.INPUT)
+switch.set_pull_up_down(18, pigpio.PUD_UP)
 
-if GPIO.input(switch) == False: # need to restart as Mini
+led = pigpio.pi()
+led.hardware_PWM(18,1,500000)
+
+if switch.read(18) == 0: # need to restart as Mini
     print ('Restarting as eFinder Mini')
     subprocess.Popen(["venv-efinder/bin/python","Solver/eFinder_mini.py"])
     sys.exit(0)
@@ -46,7 +48,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "8.3"
+version = "8.5"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -80,6 +82,7 @@ offset_str = "0,0"
 solve = False
 testMode = False
 stars = peak = '0'
+eTime = "9.9"
 patch = np.zeros((32,32),dtype=np.uint8)
 psfArray = np.zeros((32,32),dtype=np.uint8)
 capArray = np.zeros((760,960),dtype=np.uint8)
@@ -476,8 +479,9 @@ def configHotspotWifi(msg):
     return '1'
 
 def setLED(b):
-    global pwm, param
-    pwm.change_duty_cycle(int(b))
+    global param,led
+    led_duty_cycle = int(b) * 10000
+    led.hardware_PWM(18,200,led_duty_cycle)
     param["LED"] = int(b)
     save_param()
     return ('1')
@@ -527,9 +531,9 @@ cmd = {
     "SQ" : "nexus.write(':SQ'+wifiOnOff(msg.strip('#')[3:])+'#')",
     "IS" : "nexus.write(':IS'+ctlSaveImage(msg.strip('#')[3:])+'#')"
 }
+led_duty_cycle = int(float(param["LED"])) * 10000
+led.hardware_PWM(18,200,led_duty_cycle)
 
-pwm.change_frequency(100)
-pwm.change_duty_cycle(int(float(param["LED"])))
 
 nexus.write(':ID=eFinderLite#')
 
@@ -538,6 +542,7 @@ while True:
     if msg != None:
         print ('received from Nexus',msg)
         if msg[1:3] == 'SC':
+            pass
             servocat.write(msg[3:].strip('#'))
         else:
             try:
@@ -545,8 +550,10 @@ while True:
             except Exception as error:
                 nexus.write(':EF'+str(error)+'#')
                 print ('Error',error) 
+    
     sct = servocat.scan()
     if sct != None:
         print ('received from ServoCat',msg)
         nexus.write(':SC'+sct+'#')
+    
     time.sleep(0.05) 
