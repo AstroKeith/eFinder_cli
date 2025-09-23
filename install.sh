@@ -28,8 +28,6 @@ echo " "
 python -m venv /home/efinder/venv-efinder --system-site-packages
 venv-efinder/bin/python venv-efinder/bin/pip install adafruit-circuitpython-adxl34x
 venv-efinder/bin/python venv-efinder/bin/pip install gdown
-venv-efinder/bin/python venv-efinder/bin/pip install rpi-hardware-pwm
-sudo chmod a+rwx -R /sys/class/pwm
 
 cd $HOME
 echo " "
@@ -116,7 +114,6 @@ echo "**************************************************************************
 sudo tee -a /boot/firmware/config.txt > /dev/null <<EOT
 dtoverlay=dwc2,dr_mode=peripheral
 enable_uart=1
-dtoverlay=pwm-2chan
 EOT
 
 sudo python /home/efinder/Solver/cmdlineUpdater.py
