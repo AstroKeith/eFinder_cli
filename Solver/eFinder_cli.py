@@ -13,26 +13,12 @@
 
 import os
 import sys
-
-os.system('sudo pigpiod')
-
 import math
-import RPi.GPIO as GPIO
 import subprocess
 import pigpio
 
-
-switch = pigpio.pi()
-switch.set_mode(18, pigpio.INPUT)
-switch.set_pull_up_down(18, pigpio.PUD_UP)
-
 led = pigpio.pi()
 led.hardware_PWM(18,1,500000)
-
-if switch.read(18) == 0: # need to restart as Mini
-    print ('Restarting as eFinder Mini')
-    subprocess.Popen(["venv-efinder/bin/python","Solver/eFinder_mini.py"])
-    sys.exit(0)
 
 global radec
 
@@ -48,7 +34,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "8.5"
+version = "8.6"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
