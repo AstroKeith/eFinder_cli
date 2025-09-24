@@ -23,13 +23,13 @@ import pigpio
 
 
 switch = pigpio.pi()
-switch.set_mode(18, pigpio.INPUT)
-switch.set_pull_up_down(18, pigpio.PUD_UP)
+switch.set_mode(17, pigpio.INPUT)
+switch.set_pull_up_down(17, pigpio.PUD_UP)
 
 led = pigpio.pi()
 led.hardware_PWM(18,1,500000)
 
-if switch.read(18) == 0: # need to restart as Mini
+if switch.read(17) == 0: # need to restart as Mini
     print ('Restarting as eFinder Mini')
     subprocess.Popen(["venv-efinder/bin/python","Solver/eFinder_mini.py"])
     sys.exit(0)
