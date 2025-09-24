@@ -17,7 +17,6 @@ import sys
 os.system('sudo pigpiod')
 
 import math
-import RPi.GPIO as GPIO
 import subprocess
 import pigpio
 
