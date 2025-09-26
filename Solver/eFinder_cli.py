@@ -34,7 +34,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "8.6"
+version = "8.7"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -54,9 +54,10 @@ try:
     import board
     import adafruit_adxl34x
     i2c = board.I2C()
-    angle = adafruit_adxl34x.ADXL343(i2c)
+    i2cAddr = i2c.scan()[0]
+    print ('accelerometer found on i2c address:',hex(i2cAddr))
+    angle = adafruit_adxl34x.ADXL343(i2c, i2cAddr)
     altAngle = True
-    print('accelerometer found')
 except:
     print('no acceleromater fitted')
     altAngle = False
@@ -145,6 +146,7 @@ def solveImage(img):
             saveImage(img,txt)
         solve = False
         return
+    
     firstStar = centroids[0]
     ra = solution['RA_target']
     dec = solution['Dec_target']
@@ -383,7 +385,10 @@ def array_to_bytes(x: np.ndarray) -> bytes:
 def getScopeAlt():
     print('getting scope Alt')
     if altAngle:
-        x,y,z = angle.acceleration
+        if hex(i2cAddr) == '0x53': 
+            x,y,z = angle.acceleration
+        else:
+            x,y,z = angle.acceleration
         print(x,y,z)
         if z > 0:
             print('below horizon')
