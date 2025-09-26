@@ -206,8 +206,8 @@ def capture():
             test = True
             offset = False
         else:
-            test = False
-            offset = True
+            test = True
+            offset = False
     else:
         test = False
         offset = False
