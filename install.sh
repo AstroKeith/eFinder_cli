@@ -100,14 +100,6 @@ sudo chmod -R 755 /var/www/html
 cd $HOME
 echo " "
 echo "*****************************************************************************"
-echo "Setting up wifi"
-echo "*****************************************************************************"
-sudo python /home/efinder/Solver/setssid.py
-sudo cp /home/efinder/Solver/default_hotspot.txt /boot/overlays
-
-cd $HOME
-echo " "
-echo "*****************************************************************************"
 echo "Final eFinder_cli configuration setting"
 echo "*****************************************************************************"
 
@@ -127,6 +119,14 @@ sudo raspi-config nonint do_ssh 0
 sudo raspi-config nonint do_i2c 0
 
 sudo python /home/efinder/Solver/configUpdater.py
-#sudo cp newconfig.txt /boot/firmware/config.txt
+sudo cp newconfig.txt /boot/firmware/config.txt
+
+cd $HOME
+echo " "
+echo "*****************************************************************************"
+echo "Setting up wifi"
+echo "*****************************************************************************"
+sudo python /home/efinder/Solver/setssid.py
+
 sudo reboot now
 
