@@ -117,6 +117,7 @@ echo 'vm.swappiness = 0' | sudo tee -a /etc/sysctl.conf > /dev/null
 sudo raspi-config nonint do_boot_behaviour B2
 sudo raspi-config nonint do_ssh 0
 sudo raspi-config nonint do_i2c 0
+sudo raspi-config nonint do_serial_cons 1
 
 sudo python /home/efinder/Solver/configUpdater.py
 sudo cp newconfig.txt /boot/firmware/config.txt
