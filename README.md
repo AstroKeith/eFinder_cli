@@ -4,7 +4,7 @@
 
 ## Basics
 
-Code for astronomical telescopes to utilise plate-solving to improve pointing accuracy.
+eFinder cli is a digital finder for astronomical telescopes, utilising plate-solving to improve pointing accuracy.
 
 Requires:
 
