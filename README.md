@@ -4,7 +4,7 @@
 
 ## Basics
 
-Code for AltAz telescopes (primarily Dobsonians) to utilise plate-solving to improve pointing accuracy.
+Code for astronomical telescopes to utilise plate-solving to improve pointing accuracy.
 
 Requires:
 
