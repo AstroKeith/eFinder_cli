@@ -1,6 +1,6 @@
 # eFinder cli
 
-![IMG_6790](https://github.com/user-attachments/assets/15d95f3e-2b0b-4bfa-b234-c52bd2c7e699)
+![IMG_7238](https://github.com/user-attachments/assets/6b5f1d37-ee78-47f8-93d4-b56a7282c85d)
 
 ## Basics
 
@@ -10,7 +10,7 @@ Requires:
 
 - microSd card loaded with Raspberry Pi 64bit Bookworm OS Lite (No desktop)
 - Raspberry Pi Zero 2W.
-- ADXL343 acceleromter sensor
+- ADXL343 accelerometer sensor (optional)
 - A custom box. 3d print files available
 - A Camera, either the RP HQ Camera module (recommended) or an ASI Camera (Suggest ASI120MM-mini)
 - Camera lens, 25mm f1.2 cctv lens
