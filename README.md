@@ -16,7 +16,7 @@ Requires:
 - Camera lens, 25mm f1.2 cctv lens
 
 Full details at [
-](https://astrokeith.com/equipment/efinder/efinder-lite)https://astrokeith.com/equipment/efinder/efinder-lite
+](https://astrokeith.com/equipment/efinder)https://astrokeith.com/equipment/efinder
 
 ## Compatibility
 
