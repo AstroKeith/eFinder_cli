@@ -14,13 +14,14 @@ Requires:
 - A custom box. 3d print files available
 - A Camera, either the RP HQ Camera module (recommended) or an ASI Camera (Suggest ASI120MM-mini)
 - Camera lens, 25mm f1.2 cctv lens
+- A host computer (or Nexus DSC Pro)
 
 Full details at [
 ](https://astrokeith.com/equipment/efinder)https://astrokeith.com/equipment/efinder
 
 ## Compatibility
 
-The eFinder cli is designed to operate alongside a host computer
+The eFinder cli is designed to operate alongside a host computer or Nexus DSC Pro
 
 
 ## Operation
