@@ -19,6 +19,8 @@ Requires:
 Full details at [
 ](https://astrokeith.com/equipment/efinder)https://astrokeith.com/equipment/efinder
 
+The repo includes a pdf describing how to prepare a complete working micro sdCard for the Pi Zero 2W
+
 ## Compatibility
 
 The eFinder cli is designed to operate alongside a host computer or Nexus DSC Pro
