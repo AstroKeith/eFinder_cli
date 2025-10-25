@@ -34,7 +34,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "8.7"
+version = "8.9"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -385,15 +385,16 @@ def array_to_bytes(x: np.ndarray) -> bytes:
 def getScopeAlt():
     print('getting scope Alt')
     if altAngle:
+        x,y,z = angle.acceleration
         if hex(i2cAddr) == '0x53': 
-            x,y,z = angle.acceleration
+            k = 1
         else:
-            x,y,z = angle.acceleration
+            k = -1
         print(x,y,z)
         if z > 0:
             print('below horizon')
             alt = '-1'    
-        elif x > 0:
+        elif (x*k) > 0:
             print('over zenith')
             alt = '99'
         else:
