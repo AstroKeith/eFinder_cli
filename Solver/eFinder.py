@@ -34,7 +34,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "8.9"
+version = "9.1"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -468,6 +468,19 @@ def configHotspotWifi(msg):
     ssid = 'efinder'+sid
     os.system("sudo nmcli dev wifi hotspot ssid '"+ ssid +"' password '" + pswd + "'")
     hotspot = True
+    return '1'
+
+def configInfraWifi(msg):
+    global hotspot
+    try:
+        os.system("sudo nmcli con delete preconfigured")
+    except:
+        pass
+    sid,pswd = msg.split(" ")
+    os.system("sudo nmcli device wifi")
+    os.system("sudo nmcli c add type wifi con-name 'preconfigured' ifname wlan0 ssid '" + sid + "'")
+    os.system("sudo nmcli c modify 'preconfigured' wifi-sec.key-mgmt wpa-psk wifi-sec.psk '" + pswd + "'")
+    hotspot = False
     return '1'
 
 def setLED(b):
