@@ -44,44 +44,31 @@ if os.path.exists("Solver/eFinder.config") == True:
             print (line)
             param[line[0]] = str(line[1])
 
-version = "0.0"
+version = "1.0"
 radec = ('%6.4f %+6.4f' % (0,0))
 
-print ('eFinder Mini','Version '+ version)
+print ('eFinder ImageGen','Version '+ version)
 print ('Loading program')
 import time
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageOps
 import numpy as np
 import NexusUsb_2
-import RPICamera_Nexus_4
-import Coordinates_wifi_2
-import tetra3
+import RPICamera_High_Res
+
 import csv
 from io import BytesIO
 import subprocess
 
-try:
-    import board
-    import adafruit_adxl34x
-    i2c = board.I2C()
-    angle = adafruit_adxl34x.ADXL343(i2c)
-    altAngle = True
-    print('accelerometer found')
-except:
-    print('no acceleromater fitted')
-    altAngle = False
+
+print('no acceleromater fitted')
+altAngle = False
 
 expInc = 0.1 # sets how much exposure changes when using handpad adjust (seconds)
 gainInc = 5 # ditto for gain
-offset_flag = False
-offset_str = "0,0"
-solve = False
-testMode = False
-stars = peak = '0'
+
 capArray = np.zeros((760,960),dtype=np.uint8)
 hotspot = False
-keep = False
-solved_radec = 0,0
+
 fnt = ImageFont.truetype("/home/efinder/Solver/text.ttf",16)
 frame = 0
 
@@ -188,171 +175,31 @@ def selectExp(e,g):
     save_param()
     
 
-def pixel2dxdy(pix_x, pix_y):  # converts a pixel position, into a delta angular offset from the image centre
-    deg_x = (float(pix_x) - cam[0]/2) * cam[2] / 3600  # in degrees
-    deg_y = (cam[1]/2 - float(pix_y)) * cam[2] / 3600
-    return (deg_x, deg_y)
-
-def dxdy2pixel(dx, dy): # converts offsets in arcseconds to pixel position
-    pix_x = dx * 3600 / cam[2] + cam[0]/2
-    pix_y = cam[1]/2 - dy * 3600 / cam[2]
-    return (pix_x, pix_y)
-
 def capture():
     global capArray
-    hemi = 'N'
-    if testMode == True:
-        if offset_flag == False:
-            test = True
-            offset = False
-        else:
-            test = False
-            offset = True
-    else:
-        test = False
-        offset = False
-    capArray = camera.capture(test,offset,hemi)
+    capArray = camera.capture()
     return capArray
 
 
-def solveImage(img):
-    global offset_flag, solve, eTime, firstStar, solution, cam, stars, peak, radec, solved_radec
-    start_time = time.time()
-    print ("Started solving")
-
-    np_image = np.asarray(img, dtype=np.uint8)
-    centroids = tetra3.get_centroids_from_image(
-        np_image,
-        downsample=1,
-        )   
-    print ('centroids',len(centroids),'   peak',np.max(np_image))
-    if len(centroids) < 15:
-        print ("Bad image","only "+ str(len(centroids))," centroids")
-        solve = False
-        if keep:
-            txt = "Bad image - " + str(len(centroids)) + " stars" + "    Exp = "+str(param['Exposure'])+ 's.   Gain = ' + str(param["Gain"])
-            saveImage(img,txt)
-        return
-    stars = ('%4d' % (len(centroids)))
-    peak = ('%3d' % (np.max(np_image)))
-    solution = t3.solve_from_centroids(
-                    centroids,
-                    (760,960),
-                    fov_estimate=cam[3],
-                    fov_max_error=1,
-                    target_pixel=offset,
-                    return_matches=True,
-                )
-    elapsed_time = time.time() - start_time
-    eTime = ('%2.2f' % (elapsed_time)).zfill(5)
-    if solution['RA'] == None:
-        print ("Not Solved",stars + " stars")
-        if keep:
-            txt = "Not Solved - " + stars + " stars" + "    Exp = "+str(param['Exposure'])+ 's.   Gain = ' + str(param["Gain"])
-            saveImage(img,txt)
-        solve = False
-        return
-    firstStar = centroids[0]
-    ra = solution['RA_target']
-    dec = solution['Dec_target']
-    print ('J2000',coordinates.hh2dms(ra/15),coordinates.dd2aligndms(dec))
-    ra,dec = coordinates.precess(ra,dec)
-    if keep:
-        txt = "Peak = "+ str(np.max(np_image)) + "   Stars = "+ str(int(centroids.size)) + "    Exp = "+str(param['Exposure'])+ 's.   Gain = ' + str(param["Gain"])
-        saveImage(img,txt)
-    radec = ('%6.4f %+6.4f' % (ra,dec))
-    solved_radec = ra,dec
-    print ('JNow',coordinates.hh2dms(solved_radec[0]/15),coordinates.dd2aligndms(solved_radec[1]))
-    solve = True
-
 def saveImage(array,txt):
-    global frame, keep
+    global frame
     frame +=1
-    start = time.time()
     img = Image.fromarray(array)
     img2 = ImageEnhance.Contrast(img).enhance(5)
     img2 = img2.rotate(angle=180)
     img3 = ImageDraw.Draw(img2)
     txt = txt + "      Frame " + str(frame)
-    print(txt)
     img3.text((70,5), txt, font = fnt, fill='white')
     img2 = ImageOps.expand(img2,border=5,fill='red')
     img2 = img2.save('/home/efinder/Solver/images/capture.jpg')
-    print ('save %5.3f secs' % (time.time()-start))
-    if frame > 100:
-        keep = False
-        frame = 0
+
 
 def loop_solve():
     while True:
-        if offset_flag == False:
-            #start = time.time()
-            im = capture()
-            #print ('capture time %5.3f secs' % (time.time() - start))
-            solveImage(im)
-            #print ('cycle time %5.3f secs' % (time.time() - start))
-            print('****************')
+        im = capture()
+        txt = "Focus mode"
+        saveImage(im,txt)
 
-def measure_offset():
-    global offset_str, offset_flag, offset, param
-    offset_flag = True
-    print ("started capture")
-    solveImage(capture())
-    if solve == False:
-        print ("solve failed")
-        return ("fail")
-    tempExp = param['Exposure']
-    while float(peak) > 255:
-        tempExp = tempExp * 0.75
-        camera.set(tempExp, param["Gain"])
-        solveImage(capture())
-    if solve == False:
-        print ("solve failed")
-        return ("fail")
-    scope_x = firstStar[1]
-    scope_y = firstStar[0]
-    offset = firstStar
-    d_x, d_y = pixel2dxdy(scope_x, scope_y)
-    param["d_x"] = "{: .2f}".format(float(60 * d_x))
-    param["d_y"] = "{: .2f}".format(float(60 * d_y))
-    save_param()
-    offset_str = ('%1.3f,%1.3f' % (d_x,d_y))
-    hipId = str(solution['matched_catID'][0])
-    name = secondname = ""
-    with open(home_path+'/Solver/starnames.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',')
-            for row in reader:
-                nam = row[0].strip()
-                hip = row[1]
-                if str(row[1]) == str(solution['matched_catID'][0]):
-                    hipId = hip
-                    name = nam
-                    if len(row[2].strip())==0:
-                        secondname = ""
-                    else:
-                        secondname = " ("+row[2].strip()+")"
-                    break       
-    print (name + ', HIP ' + hipId)
-    offset_flag = False
-    return(name+secondname+',HIP'+hipId+','+offset_str)
-
-def go_solve():
-    solveImage(capture())
-    if solve == True:
-        print ("Solved")
-        return('1')
-    else:
-        print ("Not Solved")
-        return('0')
-
-def reset_offset():
-    global param, offset, offset_str
-    param["d_x"] = 0
-    param["d_y"] = 0
-    offset = (cam[1]/2, cam[0]/2) # default centre of the image
-    offset_str = ('%1.3f,%1.3f' % (float(param["d_x"])/60, float(param["d_y"])/60))
-    save_param()
-    return('1') 
 
 def save_param():
     with open(home_path + "/Solver/eFinder.config", "w") as h:
@@ -387,29 +234,6 @@ def setExp(a):
     save_param()
     camera.set(float(a),param["Gain"])
     return '1'
-
-def getAutoExp():
-    expAuto = float(param["Exposure"])
-    camera.set(expAuto,param["Gain"])
-    np_image = capture()
-    while True:
-        pk = np.max(np_image)
-        centroids = tetra3.get_centroids_from_image(
-            np_image,
-            downsample=1,
-            )
-        print ('%4d %s   %3d %s ' % (len(centroids),"stars",pk,"peak signal"))
-        if len(centroids) < 20:
-            expAuto = expAuto * 2
-            camera.set(expAuto,param["Gain"])
-            capture()
-        elif len(centroids) > 50 and pk > 250:
-            expAuto = int((expAuto / 2) * 10)/10
-            camera.set(expAuto,param["Gain"])
-            capture()
-        else:
-            break
-    return (str(expAuto))
             
 
 def flipTestMode(mode):
@@ -421,30 +245,6 @@ def array_to_bytes(x: np.ndarray) -> bytes:
     np_bytes = BytesIO()
     np.save(np_bytes, x, allow_pickle=True)
     return np_bytes.getvalue()[128:]
-
-
-def getScopeAlt():
-    print('getting scope Alt')
-    if altAngle:
-        x,y,z = angle.acceleration
-        print(x,y,z)
-        if z > 0:
-            print('below horizon')
-            alt = '-1'    
-        elif x > 0:
-            print('over zenith')
-            alt = '99'
-        else:
-            try:
-                alt = -180/math.pi * math.asin(z/10)
-            except:
-                alt = 89
-            alt = ('%2d' % (alt))
-            print('scope alt',alt)   
-    else:
-        print ('No accelerometer')
-        alt = '-2'
-    return alt
 
 
 def checkWifiCon(con):
@@ -526,57 +326,27 @@ def setLED(b):
     save_param()
     return ('1')
     
-def startImage(j):
-    global keep, frame
-    if j == '1':
-        print('Started saving images')
-        keep = True
-        frame = 0
-    else:
-        print('Stop saving images')
-        keep = False
-    return '1'
 
 # main code starts here
 
 nexus = NexusUsb_2.Nexus()
-camera = RPICamera_Nexus_4.RPICamera()
+camera = RPICamera_High_Res.RPICamera()
 camera.set(float(param["Exposure"]),param["Gain"])
-coordinates = Coordinates_wifi_2.Coordinates()
 
-cam = (960,760,50.8,13.5)   
-t3 = tetra3.Tetra3('t3_fov14_mag8')
 
-pix_x, pix_y = dxdy2pixel(float(param["d_x"])/60, float(param["d_y"])/60)
-offset_str = ('%1.3f,%1.3f' % (float(param["d_x"])/60, float(param["d_y"])/60))
-
-offset = (pix_y, pix_x) 
-print('offset',offset)
-np_image = np.zeros((760,960),dtype=np.uint8)
 
 cmd = {
-    "PS" : "nexus.write(':PS'+go_solve()+'#')",
-    "OF" : "nexus.write(':OF'+measure_offset()+'#')",
-    "GR" : "nexus.write(':GR'+radec+'#')",
     "TS" : "nexus.write(':TS'+flipTestMode(True)+'#')",
     "TO" : "nexus.write(':TO'+flipTestMode(False)+'#')",
     "GV" : "nexus.write(':GV'+version+'#')",
-    "GO" : "nexus.write(':GO'+offset_str+'#')",
-    "SO" : "nexus.write(':SO'+reset_offset()+'#')",
-    "GS" : "nexus.write(':GS'+str(stars)+'#')",
-    "GK" : "nexus.write(':GK'+str(peak)+'#')",
-    "Gt" : "nexus.write(':Gt'+eTime+'#')",
     "SE" : "nexus.write(':SE'+adjExp(float(msg[3:5]))+'#')",
     "SG" : "nexus.write(':SG'+adjGain(float(msg[3:5]))+'#')",
     "SX" : "nexus.write(':SX'+setExp(msg.strip('#')[3:])+'#')",
-    "GX" : "nexus.write(':GX'+getAutoExp()+'#')",
-    "GA" : "nexus.write(':GA'+getScopeAlt()+'#')",
     "SB" : "nexus.write(':SB'+setLED(float(msg[3:].strip('#')))+'#')",
     "SW" : "nexus.write(':SW'+setWifi(msg.strip('#')[3:])+'#')",
     "SH" : "nexus.write(':SH'+configHotspotWifi(msg.strip('#')[3:])+'#')",
     "SI" : "nexus.write(':SI'+configInfraWifi(msg.strip('#')[3:])+'#')",
-    "SQ" : "nexus.write(':SQ'+wifiOnOff(msg.strip('#')[3:])+'#')",
-    "IM" : "nexus.write(':IM'+startImage(msg.strip('#')[3:4])+'#')"
+    "SQ" : "nexus.write(':SQ'+wifiOnOff(msg.strip('#')[3:])+'#')"
 }
 
 led_duty_cycle = int(float(param["LED"])) * 10000
