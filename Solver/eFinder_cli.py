@@ -34,7 +34,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "9.1"
+version = "9.2"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -485,11 +485,13 @@ def configInfraWifi(msg):
 
 def setLED(b):
     global param,led
-    led_duty_cycle = int(b) * 10000
-    led.hardware_PWM(18,200,led_duty_cycle)
-    param["LED"] = int(b)
-    save_param()
-    return ('1')
+    if b != "":
+        
+        led_duty_cycle = int(b) * 10000
+        led.hardware_PWM(18,200,led_duty_cycle)
+        param["LED"] = int(b)
+        save_param()
+    return str(param["LED"])
 
 # main code starts here
 
@@ -529,7 +531,7 @@ cmd = {
     "SX" : "nexus.write(':SX'+setExp(msg.strip('#')[3:])+'#')",
     "GX" : "nexus.write(':GX'+getAutoExp()+'#')",
     "GA" : "nexus.write(':GA'+getScopeAlt()+'#')",
-    "SB" : "nexus.write(':SB'+setLED(float(msg[3:].strip('#')))+'#')",
+    "SB" : "nexus.write(':SB'+setLED(msg.strip('#')[3:])+'#')",
     "SW" : "nexus.write(':SW'+setWifi(msg.strip('#')[3:])+'#')",
     "SH" : "nexus.write(':SH'+configHotspotWifi(msg.strip('#')[3:])+'#')",
     "SI" : "nexus.write(':SI'+configInfraWifi(msg.strip('#')[3:])+'#')",
