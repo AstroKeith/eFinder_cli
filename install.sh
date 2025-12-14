@@ -1,5 +1,5 @@
 #!/bin/sh
-exec > mylogfile.txt 2>&1  # Redirects all output to mylogfile.txt
+exec 2>&1 | tee -a /home/efinder/log/install.log # Redirects all output to mylogfile.txt
 echo "eFinder cli install"
 echo " "
 echo "*****************************************************************************"
