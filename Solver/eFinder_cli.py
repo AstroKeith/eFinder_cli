@@ -34,7 +34,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "9.2"
+version = "9.4"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -106,6 +106,7 @@ def capture():
         test = False
         offset = False
     capArray = camera.capture(test,offset,hemi)
+    #print('capArray,size,shape',capArray.size,capArray.shape)
     return capArray
 
 
@@ -291,6 +292,10 @@ def doFocus(x):
     if centroids.size < 1: 
         print ('No stars found','','')
         solve = False
+        stars = '0'
+        peak = '0'
+        patch = np.zeros((32,32),dtype=np.uint8)
+        psfArray = np.zeros((32,32),dtype=np.uint8) 
         if x == 1:
             return('0')
         return
@@ -300,17 +305,21 @@ def doFocus(x):
     
     w=16
     x1=int(centroids[0][0]-w)
+    x2=int(centroids[0][0]+w)
     if x1 < 0:
         x1 = 0
-    x2=int(centroids[0][0]+w)
-    if x2 > 760:
+        x2 = 2 * w
+    elif x2 > 760:
         x2 = 760
+        x1 = 760 - (2 * w)
     y1=int(centroids[0][1]-w)
+    y2=int(centroids[0][1]+w)
     if y1 < 0:
         y1 = 0
-    y2=int(centroids[0][1]+w)
-    if y2 > 960:
+        y2 = 2 * w
+    elif y2 > 960:
         y2 = 960
+        y1 = 960 - (2 * w)
 
     patch = np_image[x1:x2,y1:y2] # 32x32 array of star
     print('patch',patch)
