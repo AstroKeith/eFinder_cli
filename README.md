@@ -5,14 +5,18 @@
 ## Basics
 
 eFinder cli is a digital finder for astronomical telescopes, utilising plate-solving to improve pointing accuracy.
+There are two DIY versions, 
+- Full Version, the same as the commercially available device (AstroDevices) except for your own housing.
+- Minimalist Version, with no daughter board it has no external power capability or ServoCat/SkyTracker support.
 
 Requires:
 
 - microSd card loaded with Raspberry Pi 64bit Bookworm OS Lite (No desktop)
 - Raspberry Pi Zero 2W.
 - ADXL343 accelerometer sensor (optional)
+- Daughter Board (optional)
 - A custom box. 3d print files available
-- A Camera, either the RP HQ Camera module (recommended) or an ASI Camera (Suggest ASI120MM-mini)
+- A Camera, the RPi HQ Camera module is recommended, although the Arducam equivalent can work.
 - Camera lens, 25mm f1.2 cctv lens
 - A host computer (or Nexus DSC Pro)
 
