@@ -1,4 +1,4 @@
-# eFinder cli
+# eFinder cli (aka Nexus eFinder)
 
 ![IMG_7238](https://github.com/user-attachments/assets/6b5f1d37-ee78-47f8-93d4-b56a7282c85d)
 
