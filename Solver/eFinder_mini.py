@@ -44,7 +44,7 @@ if os.path.exists("Solver/eFinder.config") == True:
             print (line)
             param[line[0]] = str(line[1])
 
-version = "6.3"
+version = "6.4"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('eFinder Mini','Version '+ version)
