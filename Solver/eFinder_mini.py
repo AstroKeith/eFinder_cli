@@ -570,7 +570,7 @@ def startImage(j):
 
 # main code starts here
 
-nexus = NexusUsb_2.Nexus()
+nexus = NexusUsb_2.Nexus(9999)
 camera = RPICamera_Nexus_4.RPICamera()
 camera.set(float(param["Exposure"]),param["Gain"])
 coordinates = Coordinates_wifi_2.Coordinates()
