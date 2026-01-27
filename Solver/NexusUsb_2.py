@@ -19,20 +19,23 @@ class Nexus:
             self.conn = 'usb'
             print ("Connected to Nexus DSC via USB")
         except:
-            print ("cant open USB to Nexus")
-            print('Starting wifi server - waiting for Nexus connection')
-            self.host = ''
-            self.port = setPort
-            self.backlog = 50
-            self.size = 1024
-            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.s.bind((self.host,self.port))
-            self.s.listen(self.backlog)
-            print ('wifi server established')
-            self.client, self.address = self.s.accept()
-            print ('Connected to Nexus DSC via wifi',self.client,self.address)
-            self.conn = 'wifi'
+            if setPort != '9999':
+                print ("cant open USB to Nexus")
+                print('Starting wifi server - waiting for Nexus connection')
+                self.host = ''
+                self.port = setPort
+                self.backlog = 50
+                self.size = 1024
+                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                self.s.bind((self.host,self.port))
+                self.s.listen(self.backlog)
+                print ('wifi server established')
+                self.client, self.address = self.s.accept()
+                print ('Connected to Nexus DSC via wifi',self.client,self.address)
+                self.conn = 'wifi'
+            else:
+                pass
 
         
     def write(self, txt: str):
