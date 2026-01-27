@@ -19,7 +19,7 @@ class Nexus:
             self.conn = 'usb'
             print ("Connected to Nexus DSC via USB")
         except:
-            if setPort != '9999':
+            if setPort != 9999:
                 print ("cant open USB to Nexus")
                 print('Starting wifi server - waiting for Nexus connection')
                 self.host = ''
