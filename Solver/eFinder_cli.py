@@ -34,7 +34,7 @@ if os.path.exists(home_path + "/Solver/eFinder.config") == True:
             line = line.strip("\n").split(":")
             param[line[0]] = str(line[1])
 
-version = "9.4"
+version = "9.5"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -283,6 +283,7 @@ def doFocus(x):
     np_image = np.asarray(imgf, dtype=np.uint8)
     img2 = Image.fromarray(np_image)
     img2 = ImageEnhance.Contrast(img2).enhance(5)
+    img2 = img2.rotate(angle=180)
     img2 = ImageOps.expand(img2,border=5,fill='red')
     img2 = img2.save('/home/efinder/Solver/images/capture.jpg')
     centroids = tetra3.get_centroids_from_image(
@@ -504,7 +505,7 @@ def setLED(b):
 
 # main code starts here
 
-nexus = NexusUsb_2.Nexus()
+
 camera = RPICamera_Nexus_4.RPICamera()
 camera.set(float(param["Exposure"]),param["Gain"])
 servocat = servocat_usb.ServoCat()
@@ -533,6 +534,7 @@ cmd = {
     "GO" : "nexus.write(':GO'+offset_str+'#')",
     "SO" : "nexus.write(':SO'+reset_offset()+'#')",
     "GS" : "nexus.write(':GS'+str(stars)+'#')",
+    "Gs" : "nexus.write(':Gs'+str(stars)+'#')",
     "GK" : "nexus.write(':GK'+str(peak)+'#')",
     "Gt" : "nexus.write(':Gt'+eTime+'#')",
     "SE" : "nexus.write(':SE'+adjExp(float(msg[3:5]))+'#')",
@@ -550,15 +552,14 @@ cmd = {
 led_duty_cycle = int(float(param["LED"])) * 10000
 led.hardware_PWM(18,200,led_duty_cycle)
 
-
-nexus.write(':ID=eFinderLite#')
+nexus = NexusUsb_2.Nexus()
+#nexus.write(':ID=eFinderLite#')
 
 while True:
     msg = nexus.scan()
     if msg != None:
         print ('received from Nexus',msg)
         if msg[1:3] == 'SC':
-            pass
             servocat.write(msg[3:].strip('#'))
         else:
             try:
