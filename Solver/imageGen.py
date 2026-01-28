@@ -364,12 +364,15 @@ time.sleep(0.5)
 while True:
     if switch.read(17) == 0:
         flipWifi()
-    msg = nexus.scan()
-    if msg != None:
-        print ('received',msg)
-        try:
-            exec(cmd[msg[1:3]])
-        except Exception as error:
-            nexus.write(':EF'+str(error)+'#')
-            print ('Error',error) 
-    time.sleep(0.05) 
+    try:
+        msg = nexus.scan()
+        if msg != None:
+            print ('received',msg)
+            try:
+                exec(cmd[msg[1:3]])
+            except Exception as error:
+                nexus.write(':EF'+str(error)+'#')
+                print ('Error',error)
+    except:
+        pass
+    time.sleep(0.1) 
