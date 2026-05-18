@@ -74,9 +74,7 @@ echo " "
 echo "*****************************************************************************"
 echo "installing Tetra3 and its database"
 echo "*****************************************************************************"
-cd Solver
-venv-efinder/bin/python venv-efinder/bin/pip install tetra3-0.1.0-cp311-cp311-manylinux_2_35_aarch64-4.whl
-cd $HOME
+venv-efinder/bin/python venv-efinder/bin/pip install Solver/tetra3-0.1.0-cp311-cp311-manylinux_2_35_aarch64.whl
 
 echo " "
 echo "*****************************************************************************"
