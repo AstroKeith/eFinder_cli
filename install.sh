@@ -80,6 +80,7 @@ cd tetra3
 /home/efinder/venv-efinder/bin/pip install .
 cd $HOME
 sudo venv-efinder/bin/gdown  --output /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3/data --folder https://drive.google.com/drive/folders/1uxbdttpg0Dpp8OuYUDY9arYoeglfZzcX
+sudo chmod a+rwx -R /home/efinder/venv-efinder/lib/python3.11/site-packages/tetra3
 
 echo " "
 echo "*****************************************************************************"
