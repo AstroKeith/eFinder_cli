@@ -13,14 +13,12 @@
 
 import os
 import sys
-
-os.system('sudo pigpiod')
-
 import math
 import socket
 from threading import Thread
-import pigpio
 
+os.system('sudo pigpiod')
+import pigpio
 led = pigpio.pi()
 led.hardware_PWM(18,4,500000)
 
@@ -29,22 +27,30 @@ switch.set_mode(17, pigpio.INPUT)
 switch.set_pull_up_down(17, pigpio.PUD_UP)
 
 global radec
+fault = False
 
 if len(sys.argv) > 1:
     print ('Killing running version')
     os.system('pkill -9 -f eFinder.py') # stops the autostart eFinder program running
 from pathlib import Path
 home_path = str(Path.home())
+with open("/var/www/html/eFinderLiveLog.txt", "w") as h:
+    h.write('eFinder Live errors on boot:\n')
 param = dict()
-if os.path.exists("Solver/eFinder.config") == True:
-    print('file exists')
-    with open("Solver/eFinder.config") as h:
-        for line in h:
-            line = line.strip("\n").split(":")
-            print (line)
-            param[line[0]] = str(line[1])
-
-version = "6.4"
+try:
+    if os.path.exists("Solver/eFinder.config") == True:
+        print('file exists')
+        with open("Solver/eFinder.config") as h:
+            for line in h:
+                line = line.strip("\n").split(":")
+                print (line)
+                param[line[0]] = str(line[1])
+except Exception as error:
+    with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+        h.write(str(error)+'\n')
+        fault = True
+        
+version = "6.9"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('eFinder Mini','Version '+ version)
@@ -52,7 +58,7 @@ print ('Loading program')
 import time
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageOps
 import numpy as np
-import NexusUsb_2
+import NexusUsb_3 as NexusUsb
 import RPICamera_Nexus_4
 import Coordinates_wifi_2
 import tetra3
@@ -64,12 +70,17 @@ try:
     import board
     import adafruit_adxl34x
     i2c = board.I2C()
-    angle = adafruit_adxl34x.ADXL343(i2c)
+    i2cAddr = i2c.scan()[0]
+    print ('accelerometer found on i2c address:',hex(i2cAddr))
+    angle = adafruit_adxl34x.ADXL343(i2c, i2cAddr)
     altAngle = True
     print('accelerometer found')
-except:
+except Exception as error:
     print('no acceleromater fitted')
     altAngle = False
+    fault = True
+    with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+        h.write(str(error)+'\n')
 
 expInc = 0.1 # sets how much exposure changes when using handpad adjust (seconds)
 gainInc = 5 # ditto for gain
@@ -84,6 +95,7 @@ keep = False
 solved_radec = 0,0
 fnt = ImageFont.truetype("/home/efinder/Solver/text.ttf",16)
 frame = 0
+loop = True
 
 def serveWifi(): # serve WiFi port
     global solved_radec, addr, param, keep, frame
@@ -101,84 +113,91 @@ def serveWifi(): # serve WiFi port
     timeStr = '23:00:00'
     try:
         while True:
-            client, address = s.accept()
-            while True:
-                data = client.recv(size)
-                if not data:
-                    break
-                if data:
-                    pkt = data.decode("utf-8","ignore")
-                    time.sleep(0.02)
-                    a = pkt.split('#')
-                    print(a)
-                    raPacket = coordinates.hh2dms(solved_radec[0]/15)+'#'
-                    decPacket = coordinates.dd2aligndms(solved_radec[1])+'#'
-                    for x in a:
-                        if x != '':
-                            #print (x)
-                            if x == ':GR':
-                                client.send(bytes(raPacket.encode('ascii')))
-                            elif x == ':GD':
-                                client.send(bytes(decPacket.encode('ascii')))
-                            elif x[1:3] == 'St':
-                                client.send(b'1')
-                                Lat = x[3:].split('*')
-                                Lat = int(Lat[0]) + int(Lat[1])/60 # Latitude as decimal degrees North +Ve
-                            elif x[1:3] == 'Sg':
-                                client.send(b'1')
-                                Long = x[3:].split('*')
-                                Long = int(Long[0]) + int(Long[1])/60 # Longitude as decimal degrees West +ve
-                            elif x[1:3] == 'SG':
-                                client.send(b'1')
-                                timeOffset = x[3:]
-                            elif x[1:3] == 'SL':
-                                client.send(b'1')
-                                timeStr = x[3:]
-                            elif x[1:3] == 'SC':
-                                client.send(b'Updating Planetary Data#                              #')
-                                print('dateSet',timeOffset,timeStr,x[3:])
-                                coordinates.dateSet(timeOffset,timeStr,x[3:])
-                            elif x[1:3] == 'RG': # set minimum exp/gain
-                                selectExp(0.1,10)
-                            elif x[1:3] == 'RC': # set med exp/gain
-                                selectExp(0.1,20)
-                            elif x[1:3] == 'RM': # set high exp/gain
-                                selectExp(0.2,20)
-                            elif x[1:3] == 'RS': # set very high exp/gain
-                                selectExp(0.5,30)
-                            elif x[1:3] == 'Sr': # target RA
-                                raStr = x[3:]
-                                client.send(b'1')
-                            elif x[1:3] == 'Sd': # target Dec
-                                decStr = x[3:]
-                                client.send(b'1')  
-                            elif x[1:3] == 'MS': # 'goto' aka start saving images
-                                client.send(b'0')
-                            elif x[1:3] == 'Ms':
-                                adjExp(-1)
-                            elif x[1:3] == 'Mn':
-                                adjExp(1)
-                            elif x[1:3] == 'Mw':
-                                keep = False
-                                frame = 0
-                            elif x[1:3] == 'Me':
-                                print('Started saving images')
-                                keep = True
-                            elif x[1:3] == 'CM': # do offset
-                                client.send(b'0')
-                                measure_offset()
-                                ra = raStr.split(':')
-                                targetRa = int(ra[0])+int(ra[1])/60+int(ra[2])/3600
-                                dec = decStr.split('*')
-                                decdec = dec[1].split(':')
-                                targetDec = int(dec[0]) + math.copysign((int(decdec[0])/60+int(decdec[1])/3600),float(dec[0]))
-                                print('Align target received:',targetRa, targetDec) # decimal hours and degrees
-                            elif x[-1] == 'Q':
-                                print('Stop saving images')
-                                keep = False
-                                frame = 0
-    except:
-        pass
+            try:
+                client, address = s.accept()
+                while True:
+                    data = client.recv(size)
+                    if not data:
+                        break
+                    if data:
+                        pkt = data.decode("utf-8","ignore")
+                        time.sleep(0.02)
+                        a = pkt.split('#')
+                        print(a)
+                        raPacket = coordinates.hh2dms(solved_radec[0]/15)+'#'
+                        decPacket = coordinates.dd2aligndms(solved_radec[1])+'#'
+                        for x in a:
+                            if x != '':
+                                #print (x)
+                                if x == ':GR':
+                                    client.send(bytes(raPacket.encode('ascii')))
+                                elif x == ':GD':
+                                    client.send(bytes(decPacket.encode('ascii')))
+                                elif x[1:3] == 'St':
+                                    client.send(b'1')
+                                    Lat = x[3:].split('*')
+                                    Lat = int(Lat[0]) + int(Lat[1])/60 # Latitude as decimal degrees North +Ve
+                                elif x[1:3] == 'Sg':
+                                    client.send(b'1')
+                                    Long = x[3:].split('*')
+                                    Long = int(Long[0]) + int(Long[1])/60 # Longitude as decimal degrees West +ve
+                                elif x[1:3] == 'SG':
+                                    client.send(b'1')
+                                    timeOffset = x[3:]
+                                elif x[1:3] == 'SL':
+                                    client.send(b'1')
+                                    timeStr = x[3:]
+                                elif x[1:3] == 'SC':
+                                    client.send(b'Updating Planetary Data#                              #')
+                                    print('dateSet',timeOffset,timeStr,x[3:])
+                                    coordinates.dateSet(timeOffset,timeStr,x[3:])
+                                elif x[1:3] == 'RG': # set minimum exp/gain
+                                    selectExp(0.1,10)
+                                elif x[1:3] == 'RC': # set med exp/gain
+                                    selectExp(0.1,20)
+                                elif x[1:3] == 'RM': # set high exp/gain
+                                    selectExp(0.2,20)
+                                elif x[1:3] == 'RS': # set very high exp/gain
+                                    selectExp(0.5,30)
+                                elif x[1:3] == 'Sr': # target RA
+                                    raStr = x[3:]
+                                    client.send(b'1')
+                                elif x[1:3] == 'Sd': # target Dec
+                                    decStr = x[3:]
+                                    client.send(b'1')  
+                                elif x[1:3] == 'Ms':
+                                    adjExp(-1)
+                                elif x[1:3] == 'Mn':
+                                    adjExp(1)
+                                elif x[1:3] == 'Me' or x[1:3] == 'Mw':
+                                    frame = 0
+                                    keep = True
+                                elif x[1:3] == 'CM': # do offset
+                                    client.send(b'0')
+                                    measure_offset()
+                                    ra = raStr.split(':')
+                                    targetRa = int(ra[0])+int(ra[1])/60+int(ra[2])/3600
+                                    dec = decStr.split('*')
+                                    decdec = dec[1].split(':')
+                                    targetDec = int(dec[0]) + math.copysign((int(decdec[0])/60+int(decdec[1])/3600),float(dec[0]))
+                                    print('Align target received:',targetRa, targetDec) # decimal hours and degrees
+                                elif x[-1] == 'Q':
+                                    print('Stop saving images')
+                                    keep = False
+            except Exception as error:
+                print (error)
+                print ('re-starting Device wifi server')
+                with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+                    h.write(str(error)+'\n')
+                fault = True
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                s.bind((host,port))
+                s.listen(backlog)
+    except Exception as error:
+        fault = True
+        with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+            h.write(str(error)+'\n')
 
 
 def selectExp(e,g):
@@ -206,8 +225,8 @@ def capture():
             test = True
             offset = False
         else:
-            test = True
-            offset = False
+            test = False
+            offset = True
     else:
         test = False
         offset = False
@@ -284,14 +303,17 @@ def saveImage(array,txt):
         frame = 0
 
 def loop_solve():
+    a = True
     while True:
-        if offset_flag == False:
+        if offset_flag == False and loop == True:   
+            led.hardware_PWM(18,200,a * led_duty_cycle)
             #start = time.time()
             im = capture()
             #print ('capture time %5.3f secs' % (time.time() - start))
             solveImage(im)
             #print ('cycle time %5.3f secs' % (time.time() - start))
             print('****************')
+            a = not a
 
 def measure_offset():
     global offset_str, offset_flag, offset, param
@@ -495,21 +517,24 @@ def setWifi(msg):
         return '0'
 
 def flipWifi():
-    global led, hotspot, led_duty_cycle
+    global led, hotspot, led_duty_cycle,loop
+    loop = False
     led.hardware_PWM(18,4,500000)
     if checkWifiCon('Hotspot'):
         try:
             os.system('sudo nmcli conn up preconfigured')
             hotspot = False
-        except:
-            led.hardware_PWM(18,200,led_duty_cycle)
-            return
+        except Exception as error:
+            with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+                h.write(str(error)+'\n')
+            print (error)
     else:
         os.system('sudo nmcli con up Hotspot')
         hotspot = True
     time.sleep(2)
     led.hardware_PWM(18,200,led_duty_cycle)
-
+    loop = True
+    
 def wifiOnOff(msg):
     if msg == '0':
         os.system('sudo nmcli radio wifi off')
@@ -529,8 +554,10 @@ def configHotspotWifi(msg):
     global hotspot
     try:
         os.system("sudo nmcli con delete Hotspot")
-    except:
-        pass
+    except Exception as error:
+        with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+            h.write(str(error)+'\n')
+        print (error)
     sid,pswd = msg.split(" ")
     os.system("sudo nmcli dev wifi hotspot ssid '"+ sid +"' password '" + pswd + "'")
     hotspot = True
@@ -540,8 +567,10 @@ def configInfraWifi(msg):
     global hotspot
     try:
         os.system("sudo nmcli con delete preconfigured")
-    except:
-        pass
+    except Exception as error:
+        with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+            h.write(str(error)+'\n')
+        print (error)
     sid,pswd = msg.split(" ")
     os.system("sudo nmcli device wifi")
     os.system("sudo nmcli c add type wifi con-name 'preconfigured' ifname wlan0 ssid '" + sid + "'")
@@ -570,17 +599,36 @@ def startImage(j):
 
 # main code starts here
 
-nexus = NexusUsb_2.Nexus(9999) # stop a wifi host being created.
-camera = RPICamera_Nexus_4.RPICamera()
-camera.set(float(param["Exposure"]),param["Gain"])
+try:
+    nexus = NexusUsb.Nexus()
+except Exception as error:
+        with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+            h.write(str(error)+'\n')
+        fault =True
+            
+try:
+    camera = RPICamera_Nexus_4.RPICamera()
+    camera.set(float(param["Exposure"]),param["Gain"])
+except Exception as error:
+    fault = True
+    with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+        h.write('camera: ' + str(error)+'\n')
+
 coordinates = Coordinates_wifi_2.Coordinates()
 
-if not checkWifiConExist('Hotspot'):
-    print ('Creating a default Hotspot Wifi')
-    createDefaultHotspot()
+
+if param['wifi'].lower() == 'infra' and fault == False:
+    hotspot = False
+    setWifi('0')
+else:
+    if not checkWifiConExist('Hotspot'):
+        print ('Creating a default Hotspot Wifi')
+        createDefaultHotspot()
+        with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+            h.write('Creating a default Hotspot Wifi\n')
+    hotspot = True
+    setWifi('1')
     
-setWifi('1')
-hotspot = True
 
 cam = (960,760,50.8,13.5)   
 t3 = tetra3.Tetra3('t3_fov14_mag8')
@@ -639,8 +687,11 @@ while True:
             try:
                 exec(cmd[msg[1:3]])
             except Exception as error:
+                with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+                    h.write(str(error)+'\n')
                 nexus.write(':EF'+str(error)+'#')
                 print ('Error',error)
-    except:
-        pass
+    except Exception as error:
+        with open("/var/www/html/eFinderLiveLog.txt", "a") as h:
+            h.write(str(error)+'\n')
     time.sleep(0.05) 
