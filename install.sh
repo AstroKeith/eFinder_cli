@@ -96,7 +96,7 @@ sudo cp /home/efinder/eFinder_cli/Solver/updater.html /var/www/html
 sudo cp /home/efinder/eFinder_cli/Solver/user.ini /etc/php/8.2/apache2/conf.d
 sudo cp /home/efinder/eFinder_cli/Solver/user.ini /etc/php/8.2/cli/conf.d
 sudo mv /var/www/html/index.html /var/www/html/apacheindex.html
-sudo chmod -R 755 /var/www/html
+sudo chmod -R a+rwx /var/www/html
 
 cd $HOME
 echo " "
