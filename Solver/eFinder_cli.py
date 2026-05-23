@@ -21,20 +21,30 @@ led = pigpio.pi()
 led.hardware_PWM(18,1,500000)
 
 global radec
+fault = ""
 
 if len(sys.argv) > 1:
     print ('Killing running version')
     os.system('pkill -9 -f eFinder.py') # stops the autostart eFinder program running
 from pathlib import Path
 home_path = str(Path.home())
-param = dict()
-if os.path.exists(home_path + "/Solver/eFinder.config") == True:
-    with open(home_path + "/Solver/eFinder.config") as h:
-        for line in h:
-            line = line.strip("\n").split(":")
-            param[line[0]] = str(line[1])
 
-version = "9.5"
+with open("/var/www/html/eFinderLog.txt", "w") as h:
+    h.write('eFinder errors on boot:\n')
+        
+param = dict()
+try:
+    if os.path.exists(home_path + "/Solver/eFinder.config") == True:
+        with open(home_path + "/Solver/eFinder.config") as h:
+            for line in h:
+                line = line.strip("\n").split(":")
+                param[line[0]] = str(line[1])
+except Exception as error:
+    fault = fault + "1"
+    with open("/var/www/html/eFinderLog.txt", "a") as h:
+        h.write(str(error)+'\n')
+        
+version = "9.9"
 radec = ('%6.4f %+6.4f' % (0,0))
 
 print ('Nexus eFinder','Version '+ version)
@@ -42,7 +52,7 @@ print ('Loading program')
 import time
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageOps
 import numpy as np
-import NexusUsb_2
+import NexusUsb_3 as NexusUsb
 import RPICamera_Nexus_4
 import servocat_usb
 import tetra3
@@ -58,9 +68,12 @@ try:
     print ('accelerometer found on i2c address:',hex(i2cAddr))
     angle = adafruit_adxl34x.ADXL343(i2c, i2cAddr)
     altAngle = True
-except:
+except Exception as error:
     print('no acceleromater fitted')
+    fault = fault + "2"
     altAngle = False
+    with open("/var/www/html/eFinderLog.txt", "a") as h:
+        h.write(str(error)+'\n')
 
 expInc = 0.1 # sets how much exposure changes when using handpad adjust (seconds)
 gainInc = 5 # ditto for gain
@@ -449,19 +462,41 @@ def setWifi(msg):
             reply = reply + '0'
         return reply
     elif msg == "0":
-        os.system('sudo nmcli conn up preconfigured')
-        hotspot = False
-        return '1'
+        try:
+            if checkWifi('enabled') == False:
+                os.system('sudo nmcli radio wifi on')
+                time.sleep(1)
+            os.system('sudo nmcli conn up preconfigured')
+            param["wifi"] = "Infra"
+            save_param()
+            hotspot = False
+            return '1'
+        except:
+            with open("/var/www/html/eFinderLog.txt", "a") as h:
+                h.write(str(error)+'\n')
+            pass
     elif msg == '1':
-        os.system('sudo nmcli con up Hotspot')
-        hotspot = True
-        return '1'
+        try:
+            if checkWifi('enabled') == False:
+                os.system('sudo nmcli radio wifi on')
+                time.sleep(1)
+            os.system('sudo nmcli con up Hotspot')
+            param["wifi"] = "Hotspot"
+            save_param()
+            hotspot = True
+            return '1'
+        except:
+            with open("/var/www/html/eFinderLog.txt", "a") as h:
+                h.write(str(error)+'\n')
+            pass
     else:
         return '0'
 
 def wifiOnOff(msg):
     if msg == '0':
         os.system('sudo nmcli radio wifi off')
+        param["wifi"] = "Off"
+        save_param()
         print('wifi off')
     else:
         os.system('sudo nmcli radio wifi on')
@@ -477,6 +512,8 @@ def configHotspotWifi(msg):
     sid,pswd = msg.split(" ")
     ssid = 'efinder'+sid
     os.system("sudo nmcli dev wifi hotspot ssid '"+ ssid +"' password '" + pswd + "'")
+    os.system("sudo nmcli con modify Hotspot connection.autoconnect yes")
+    setWifi('1')
     hotspot = True
     return '1'
 
@@ -490,6 +527,7 @@ def configInfraWifi(msg):
     os.system("sudo nmcli device wifi")
     os.system("sudo nmcli c add type wifi con-name 'preconfigured' ifname wlan0 ssid '" + sid + "'")
     os.system("sudo nmcli c modify 'preconfigured' wifi-sec.key-mgmt wpa-psk wifi-sec.psk '" + pswd + "'")
+    os.system("sudo nmcli con modify 'preconfigured' connection.autoconnect no")
     hotspot = False
     return '1'
 
@@ -505,11 +543,17 @@ def setLED(b):
 
 # main code starts here
 
-
-camera = RPICamera_Nexus_4.RPICamera()
-camera.set(float(param["Exposure"]),param["Gain"])
+try:
+    camera = RPICamera_Nexus_4.RPICamera()
+    camera.set(float(param["Exposure"]),param["Gain"])
+except Exception as error:
+    fault = fault + "3"
+    with open("/var/www/html/eFinderLog.txt", "a") as h:
+        h.write('camera: ' + str(error)+'\n')
+      
 servocat = servocat_usb.ServoCat()
 
+        
 cam = (960,760,50.8,13.5)   
 t3 = tetra3.Tetra3('t3_fov14_mag8')
 print ('Done')
@@ -549,15 +593,57 @@ cmd = {
     "SQ" : "nexus.write(':SQ'+wifiOnOff(msg.strip('#')[3:])+'#')",
     "IS" : "nexus.write(':IS'+ctlSaveImage(msg.strip('#')[3:])+'#')"
 }
+
+
+        
+if fault == "":
+    # implement wifi settings as per eFinder.config
+    try:
+        if param["wifi"].lower() == "infra":
+            os.system('sudo nmcli conn up preconfigured')
+            hotspot = False
+        elif param["wifi"].lower() == "off":
+            os.system('sudo nmcli radio wifi off')
+        else:
+            if checkWifiCon('Hotspot') == False:
+                setWifi('1')
+    except Exception as error:
+        fault = fault + "4"
+        version = version + "(" + fault + ")"
+        with open("/var/www/html/eFinderLog.txt", "a") as h:
+            h.write(str(error)+'\n')
+        print ('Error',error) 
+
+try:
+    nexus = NexusUsb.Nexus()
+except Exception as error:
+    fault = fault + "5"
+    with open("/var/www/html/eFinderLog.txt", "a") as h:
+        h.write(str(error)+'\n')
+
+if fault != "":
+    version = version + "(" + fault + ")"
+    
 led_duty_cycle = int(float(param["LED"])) * 10000
 led.hardware_PWM(18,200,led_duty_cycle)
-
-nexus = NexusUsb_2.Nexus()
-#nexus.write(':ID=eFinderLite#')
+waiter = 0
+watch = True
 
 while True:
+    if watch:
+        waiter +=1
+        if waiter > 50:
+            print('starting eFinder Live mode')
+            led.hardware_PWM(18,200,0)
+            led.stop()
+            with open("/var/www/html/eFinderLog.txt", "a") as h:
+                h.write('Starting live mode\n')
+            subprocess.Popen(["/home/efinder/venv-efinder/bin/python","/home/efinder/Solver/eFinder_mini.py"])
+            sys.exit(0)
+    
     msg = nexus.scan()
     if msg != None:
+        watch = False
         print ('received from Nexus',msg)
         if msg[1:3] == 'SC':
             servocat.write(msg[3:].strip('#'))
@@ -566,6 +652,9 @@ while True:
                 exec(cmd[msg[1:3]])
             except Exception as error:
                 nexus.write(':EF'+str(error)+'#')
+                fault = fault + "6"
+                with open("/var/www/html/eFinderLog.txt", "a") as h:
+                    h.write(str(error)+'\n')
                 print ('Error',error) 
     
     sct = servocat.scan()
